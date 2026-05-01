@@ -23,6 +23,7 @@ or:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import time
@@ -48,10 +49,10 @@ from app.tools.devonthink_link_tools import (
 )
 
 # ---------------------------------------------------------------------------
-# Inbox database UUID (existing fixture)
+# Live fixture database UUID
 # ---------------------------------------------------------------------------
 
-DB_INBOX = "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+DB_INBOX = os.environ.get("DEVONTHINK_TEST_DATABASE_UUID", "00000000-0000-4000-8000-000000000001")
 
 # ---------------------------------------------------------------------------
 # Test harness
@@ -310,7 +311,7 @@ def _create_corpus() -> dict[str, str]:
 
     script_parts = [
         'tell application "DEVONthink"',
-        f'    set theDB to get database with uuid "0444C204-D8AD-4CC0-8A9A-9F6817C12896"',
+        f'    set theDB to get database with uuid "00000000-0000-4000-8000-000000000001"',
         '    set inboxGroup to incoming group of theDB',
         # root group
         '    set rootGrp to create record with {name:"MCP Test - Scholar Workflows", record type:group} in inboxGroup',

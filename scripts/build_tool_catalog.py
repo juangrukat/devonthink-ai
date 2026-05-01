@@ -15,6 +15,7 @@ from app.tools.devonthink_dictionary_tools import dictionary_tool_catalog_entrie
 from app.tools.devonthink_annotation_tools import annotation_tool_catalog_entries
 from app.tools.devonthink_database_tools import database_tool_catalog_entries
 from app.tools.devonthink_link_tools import link_tool_catalog_entries
+from app.tools.devonthink_quirks_tools import quirks_tool_catalog_entries
 from app.tools.devonthink_reminder_tools import reminder_tool_catalog_entries
 from app.tools.devonthink_richtext_tools import richtext_tool_catalog_entries
 from app.tools.devonthink_script_tools import script_tool_catalog_entries
@@ -35,6 +36,7 @@ def build_tools() -> list[dict]:
     entries.extend(smart_tool_catalog_entries())
     entries.extend(reminder_tool_catalog_entries())
     entries.extend(lifecycle_tool_catalog_entries())
+    entries.extend(quirks_tool_catalog_entries())
     entries.extend(script_tool_catalog_entries())
     entries.extend(richtext_tool_catalog_entries())
     entries.extend(link_tool_catalog_entries())

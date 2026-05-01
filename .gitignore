@@ -34,6 +34,13 @@ env/
 *.swp
 *.swo
 *.orig
+reports/
+*.dtBase2/
+*.dtBase2
+devonthink-stress-results-*.json
+devonthink-stress-results-*.md
+devonthink-static-stress-*.json
+devonthink-stress-snapshots-*/
 
 # Local tools / scratch
 .claude/settings.local.json
@@ -43,3 +50,4 @@ error/
 clients/generated/
 .devonthink-mcp/osascript-runs/
 snapshots/
+app/data/snapshot_plan_index.json

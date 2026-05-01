@@ -559,6 +559,14 @@
     "note": "DEVONthink overlap family grouped by command verb for devonthink-plain."
   },
   {
+    "family": "devonthink-quirks",
+    "canonical_tool": "devonthink-inspect-quirks",
+    "members": [
+      "devonthink-inspect-quirks"
+    ],
+    "note": "Overlap family for devonthink-quirks."
+  },
+  {
     "family": "devonthink-quit",
     "canonical_tool": "devonthink-quit",
     "members": [

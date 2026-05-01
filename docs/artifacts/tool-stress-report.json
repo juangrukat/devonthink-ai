@@ -17,11 +17,11 @@
       "command_name": "close",
       "tier": "advanced",
       "suite": "Standard Suite",
-      "sample_direct": "0444C204-D8AD-4CC0-8A9A-9F6817C12896",
+      "sample_direct": "00000000-0000-4000-8000-000000000001",
       "sample_parameters": {},
       "description_flags": [],
       "build_ok": true,
-      "applescript": "close database with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "close database with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -226,11 +226,11 @@
       "sample_direct": "mcp test sample",
       "sample_parameters": {
         "for": "5038E0B0-2134-4CDA-B443-6558CE283BCC",
-        "to": "180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"
+        "to": "00000000-0000-4000-8000-000000000002"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "add custom meta data \"mcp test sample\" for record with uuid \"5038E0B0-2134-4CDA-B443-6558CE283BCC\" to record with uuid \"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"",
+      "applescript": "add custom meta data \"mcp test sample\" for record with uuid \"5038E0B0-2134-4CDA-B443-6558CE283BCC\" to record with uuid \"00000000-0000-4000-8000-000000000002\"",
       "malformed_patterns": []
     },
     {
@@ -264,11 +264,11 @@
       "suite": "DEVONthink Suite",
       "sample_direct": "mcp test sample",
       "sample_parameters": {
-        "to": "180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"
+        "to": "00000000-0000-4000-8000-000000000002"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "add reminder \"mcp test sample\" to record with uuid \"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"",
+      "applescript": "add reminder \"mcp test sample\" to record with uuid \"00000000-0000-4000-8000-000000000002\"",
       "malformed_patterns": []
     },
     {
@@ -292,11 +292,11 @@
       "suite": "DEVONthink Suite",
       "sample_direct": null,
       "sample_parameters": {
-        "database": "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+        "database": "00000000-0000-4000-8000-000000000001"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "check file integrity of database with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "check file integrity of database with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -332,12 +332,12 @@
       "suite": "DEVONthink Suite",
       "sample_direct": null,
       "sample_parameters": {
-        "database": "0444C204-D8AD-4CC0-8A9A-9F6817C12896",
+        "database": "00000000-0000-4000-8000-000000000001",
         "to": "https://example.com"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "compress database with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\" to \"https://example.com\"",
+      "applescript": "compress database with uuid \"00000000-0000-4000-8000-000000000001\" to \"https://example.com\"",
       "malformed_patterns": []
     },
     {
@@ -371,11 +371,11 @@
       "command_name": "create database",
       "tier": "advanced",
       "suite": "DEVONthink Suite",
-      "sample_direct": "0444C204-D8AD-4CC0-8A9A-9F6817C12896",
+      "sample_direct": "00000000-0000-4000-8000-000000000001",
       "sample_parameters": {},
       "description_flags": [],
       "build_ok": true,
-      "applescript": "create database \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "create database \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -621,12 +621,12 @@
       "suite": "DEVONthink Suite",
       "sample_direct": null,
       "sample_parameters": {
-        "record": "0444C204-D8AD-4CC0-8A9A-9F6817C12896",
-        "to": "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+        "record": "00000000-0000-4000-8000-000000000001",
+        "to": "00000000-0000-4000-8000-000000000001"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "duplicate record with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\" to record with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "duplicate record with uuid \"00000000-0000-4000-8000-000000000001\" to record with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -1212,12 +1212,12 @@
       "suite": "DEVONthink Suite",
       "sample_direct": null,
       "sample_parameters": {
-        "record": "0444C204-D8AD-4CC0-8A9A-9F6817C12896",
-        "to": "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+        "record": "00000000-0000-4000-8000-000000000001",
+        "to": "00000000-0000-4000-8000-000000000001"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "move record with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\" to record with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "move record with uuid \"00000000-0000-4000-8000-000000000001\" to record with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -1253,11 +1253,11 @@
       "command_name": "open database",
       "tier": "advanced",
       "suite": "DEVONthink Suite",
-      "sample_direct": "0444C204-D8AD-4CC0-8A9A-9F6817C12896",
+      "sample_direct": "00000000-0000-4000-8000-000000000001",
       "sample_parameters": {},
       "description_flags": [],
       "build_ok": true,
-      "applescript": "open database \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "open database \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -1293,11 +1293,11 @@
       "suite": "DEVONthink Suite",
       "sample_direct": null,
       "sample_parameters": {
-        "database": "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+        "database": "00000000-0000-4000-8000-000000000001"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "optimize database with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "optimize database with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -1346,11 +1346,11 @@
       "sample_direct": null,
       "sample_parameters": {
         "record": "5038E0B0-2134-4CDA-B443-6558CE283BCC",
-        "to": "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+        "to": "00000000-0000-4000-8000-000000000001"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "replicate record with uuid \"5038E0B0-2134-4CDA-B443-6558CE283BCC\" to record with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "replicate record with uuid \"5038E0B0-2134-4CDA-B443-6558CE283BCC\" to record with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -1601,11 +1601,11 @@
       "suite": "DEVONthink Suite",
       "sample_direct": null,
       "sample_parameters": {
-        "database": "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+        "database": "00000000-0000-4000-8000-000000000001"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "verify database with uuid \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"",
+      "applescript": "verify database with uuid \"00000000-0000-4000-8000-000000000001\"",
       "malformed_patterns": []
     },
     {
@@ -1655,11 +1655,11 @@
       "suite": "Imprint Commands Suite",
       "sample_direct": "mcp test sample",
       "sample_parameters": {
-        "to": "180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"
+        "to": "00000000-0000-4000-8000-000000000002"
       },
       "description_flags": [],
       "build_ok": true,
-      "applescript": "imprint configuration \"mcp test sample\" to record with uuid \"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"",
+      "applescript": "imprint configuration \"mcp test sample\" to record with uuid \"00000000-0000-4000-8000-000000000002\"",
       "malformed_patterns": []
     },
     {

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "affected_tools",
+      "operations",
+      "record_types",
+      "applescript_commands",
+      "severity",
+      "mitigation",
+      "signal_tier_impact"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+      "title": {"type": "string", "minLength": 1},
+      "affected_tools": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+      "operations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+      "record_types": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+      "applescript_commands": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+      "severity": {"type": "string", "enum": ["low", "medium", "high"]},
+      "mitigation": {"type": "string", "minLength": 1},
+      "signal_tier_impact": {"type": "string", "enum": ["authoritative", "structural", "inferred"]}
+    }
+  }
+}

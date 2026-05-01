@@ -12,6 +12,7 @@ or:
 
 from __future__ import annotations
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -46,31 +47,31 @@ from app.tools.devonthink_link_tools import (
 # Fixture UUIDs (created 2026-04-23 in Inbox database)
 # ---------------------------------------------------------------------------
 
-DB_INBOX = "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+DB_INBOX = os.environ.get("DEVONTHINK_TEST_DATABASE_UUID", "00000000-0000-4000-8000-000000000001")
 
 GROUPS = {
-    "root":         "180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B",
-    "concordance":  "B112E1A5-2C97-49B0-AABF-738074779AE6",
-    "archive":      "1627579C-2B82-40D2-967C-E1B7923F20FB",
-    "chronological":"5DF10BDC-CCDE-45AD-B929-DDAFD230D5D1",
+    "root":         os.environ.get("DEVONTHINK_TEST_SCHOLAR_GROUP_UUID", "00000000-0000-4000-8000-000000000002"),
+    "concordance":  os.environ.get("DEVONTHINK_TEST_CONCORDANCE_GROUP_UUID", "00000000-0000-4000-8000-000000000004"),
+    "archive":      os.environ.get("DEVONTHINK_TEST_ARCHIVE_GROUP_UUID", "00000000-0000-4000-8000-000000000007"),
+    "chronological":os.environ.get("DEVONTHINK_TEST_CHRONO_GROUP_UUID", "00000000-0000-4000-8000-000000000008"),
 }
 
 RECORDS = {
     # Concordance group
-    "c1_concordance_methods":  "434CC4D5-FF64-47CA-A412-3C090943CF9C",
-    "c2_rare_term_weighting":  "8430F748-D4E3-43E3-BEA3-4ECE3C8D069B",
-    "c3_corpus_management":    "85E11430-B331-419C-950A-BAD35DBC49F4",
-    "c4_workflow_notes":       "42579007-8F4C-4C5B-8B31-9BC29D78DE49",
+    "c1_concordance_methods":  os.environ.get("DEVONTHINK_TEST_RECORD_A_UUID", "00000000-0000-4000-8000-000000000005"),
+    "c2_rare_term_weighting":  os.environ.get("DEVONTHINK_TEST_RECORD_B_UUID", "00000000-0000-4000-8000-000000000006"),
+    "c3_corpus_management":    os.environ.get("DEVONTHINK_TEST_RECORD_C_UUID", "00000000-0000-4000-8000-000000000009"),
+    "c4_workflow_notes":       os.environ.get("DEVONTHINK_TEST_RECORD_D_UUID", "00000000-0000-4000-8000-000000000010"),
     # Archive group
-    "a1_batch_import":         "8005A2A7-1FD5-4F8C-9BB0-C2EC2BE81DED",
-    "a2_ocr_protocol":         "B7357CDA-5972-4173-B0E1-160CC61E9BEA",
-    "a3_citation_logic":       "A6A558D1-20EF-4BCD-A75D-82DC9BB2CBBB",
-    "a4_finding_aid":          "A0AD2CA6-5CF5-4FE7-A807-2283EE3C3E27",
+    "a1_batch_import":         os.environ.get("DEVONTHINK_TEST_RECORD_E_UUID", "00000000-0000-4000-8000-000000000011"),
+    "a2_ocr_protocol":         os.environ.get("DEVONTHINK_TEST_RECORD_F_UUID", "00000000-0000-4000-8000-000000000012"),
+    "a3_citation_logic":       os.environ.get("DEVONTHINK_TEST_RECORD_G_UUID", "00000000-0000-4000-8000-000000000013"),
+    "a4_finding_aid":          os.environ.get("DEVONTHINK_TEST_RECORD_H_UUID", "00000000-0000-4000-8000-000000000014"),
     # Chronological group
-    "ch1_2023_concordance":    "7D0EBC6E-1FB6-41E9-B245-362F0A6F5BC8",
-    "ch2_2023_florence":       "9BD3AC08-B6E0-4620-B85B-AAF8459B6B88",
-    "ch3_2024_smart_groups":   "0872BDCD-B291-4529-852D-8AF8B9FFD992",
-    "ch4_2024_corpus_review":  "A1037B82-464F-4B5F-BC77-FCAA2715D3EE",
+    "ch1_2023_concordance":    os.environ.get("DEVONTHINK_TEST_RECORD_I_UUID", "00000000-0000-4000-8000-000000000015"),
+    "ch2_2023_florence":       os.environ.get("DEVONTHINK_TEST_RECORD_J_UUID", "00000000-0000-4000-8000-000000000016"),
+    "ch3_2024_smart_groups":   os.environ.get("DEVONTHINK_TEST_RECORD_K_UUID", "00000000-0000-4000-8000-000000000017"),
+    "ch4_2024_corpus_review":  os.environ.get("DEVONTHINK_TEST_RECORD_L_UUID", "00000000-0000-4000-8000-000000000018"),
 }
 
 # ---------------------------------------------------------------------------

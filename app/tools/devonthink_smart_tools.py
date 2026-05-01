@@ -216,7 +216,7 @@ def smart_tool_catalog_entries() -> list[dict[str, Any]]:
             identifier_guidance="Accepts a parent group UUID, optional search group UUID, and DEVONthink search predicate string.",
             safety_class="writes_content",
             prefer_when="you need query-backed membership from search predicates; use devonthink-create-record type=group for a plain static group.",
-            example='{"name":"PDF Files","search_predicates":"kind:PDF","parent_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            example='{"name":"PDF Files","search_predicates":"kind:PDF","parent_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             accepted_identifiers=["group_uuid"],
             preferred_identifier="group_uuid",
             tier="canonical",

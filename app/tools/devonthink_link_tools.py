@@ -13,13 +13,16 @@ import re
 import shutil
 import subprocess
 import time
+import hashlib
+import secrets
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
 from app.tools.applescript_counter import record_applescript_call
+from app.tools.snapshot_index import referenced_snapshots
 from app.tools.tool_catalog import build_description, catalog_entry
 from app.tools.telemetry import wrap_tool_call
 
@@ -29,6 +32,8 @@ CONTRACT_VERSION = "1.1.0"
 SIGNAL_MODEL_VERSION = "1.1.0"
 TOOLSET_VERSION = "2026.04.23.1"
 SNAPSHOT_META_SCHEMA_VERSION = "1.0.0"
+LINK_PLAN_TTL_SECONDS = 300
+LINK_PLAN_STORE: dict[str, dict[str, Any]] = {}
 
 ITEM_LINK_RE = re.compile(r"x-devonthink-item://[0-9a-fA-F-]{36}")
 UUID_RE = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
@@ -132,6 +137,82 @@ LINK_TOOL_TIERS = {
 }
 
 
+def clear_link_plan_store() -> None:
+    """Clear in-memory link-maintenance plans. Intended for tests."""
+    LINK_PLAN_STORE.clear()
+
+
+def _stable_hash(value: Any) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _utc_expiry(seconds: int = LINK_PLAN_TTL_SECONDS) -> datetime:
+    return datetime.now(timezone.utc) + timedelta(seconds=seconds)
+
+
+def _store_link_plan(
+    tool: str,
+    inputs: dict[str, Any],
+    actionable_rows: Any,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    expires_at = _utc_expiry()
+    plan_id = f"linkplan_{secrets.token_hex(16)}"
+    plan = {
+        "plan_id": plan_id,
+        "tool": tool,
+        "inputs": inputs,
+        "actionable_hash": _stable_hash(actionable_rows),
+        "context": context or {},
+        "expires_at": expires_at,
+        "applied": False,
+    }
+    LINK_PLAN_STORE[plan_id] = plan
+    return {"plan_id": plan_id, "expires_at": expires_at.isoformat()}
+
+
+def _validate_link_plan(tool: str, plan_id: str | None, actionable_rows: Any) -> tuple[bool, str | dict[str, Any] | None]:
+    cleaned = (plan_id or "").strip()
+    if not cleaned:
+        return False, {"code": "plan_id_required", "message": "Apply mode requires a plan_id from report mode."}
+    plan = LINK_PLAN_STORE.get(cleaned)
+    if plan is None or plan.get("tool") != tool:
+        return False, {"code": "plan_not_found", "message": f"No matching plan found for plan_id: {cleaned}"}
+    if datetime.now(timezone.utc) > plan["expires_at"]:
+        return False, {"code": "plan_expired", "message": "Plan expired. Re-run report mode and apply the new plan_id."}
+    if plan.get("applied"):
+        return False, {"code": "plan_already_applied", "message": "Plan has already been applied."}
+    current_hash = _stable_hash(actionable_rows)
+    if current_hash != plan.get("actionable_hash"):
+        return False, {
+            "code": "stale_plan",
+            "message": "Actionable rows changed since report mode. Re-run report mode before applying.",
+        }
+    plan["applied"] = True
+    return True, None
+
+
+def _add_plan_fields(
+    tool: str,
+    inputs: dict[str, Any],
+    data: dict[str, Any],
+    actionable_rows: Any,
+    context: dict[str, Any] | None = None,
+) -> None:
+    plan = _store_link_plan(tool, inputs, actionable_rows, context=context)
+    data["plan_id"] = plan["plan_id"]
+    data["plan_expires_at"] = plan["expires_at"]
+
+
+def _link_plan_context(tool: str, plan_id: str | None) -> dict[str, Any]:
+    plan = LINK_PLAN_STORE.get((plan_id or "").strip())
+    if not plan or plan.get("tool") != tool:
+        return {}
+    context = plan.get("context")
+    return context if isinstance(context, dict) else {}
+
+
 def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[dict[str, Any]]:
     specs = [
         {
@@ -165,7 +246,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you need aggregate folder-level diagnostics; prefer traverse-folder for recursive graph export and snapshots.",
             "degradation_contract": "Uses authoritative bulk edge snapshots and does not content-scan child notes by default. If a future full/content-scan path is needed, treat it as slower and unsuitable for loops or large folders.",
-            "example": '{"folder_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","limit":50}',
+            "example": '{"folder_ref":"00000000-0000-4000-8000-000000000002","limit":50}',
         },
         {
             "name": "devonthink-link-map-neighborhood",
@@ -187,7 +268,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you specifically care about weak connectivity; prefer audit-folder for a broader quality report.",
             "degradation_contract": "Returns observability.warnings when some records require degraded text-based link discovery instead of native link properties.",
-            "example": '{"folder_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","limit":100}',
+            "example": '{"folder_ref":"00000000-0000-4000-8000-000000000002","limit":100}',
         },
         {
             "name": "devonthink-link-suggest-related",
@@ -209,7 +290,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you need scored comparisons, not open-ended candidate discovery.",
             "degradation_contract": "If some signal sources are unavailable, the score still returns with signal-tier annotations and observability warnings.",
-            "example": '{"record_refs":["5038E0B0-2134-4CDA-B443-6558CE283BCC","180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"]}',
+            "example": '{"record_refs":["5038E0B0-2134-4CDA-B443-6558CE283BCC","00000000-0000-4000-8000-000000000002"]}',
         },
         {
             "name": "devonthink-link-detect-bridges",
@@ -220,7 +301,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you specifically need bridge-note detection rather than general audit output.",
             "degradation_contract": "If some cluster signals degrade, the tool still returns bridge candidates and records degraded signal counts in observability stats.",
-            "example": '{"folder_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","limit":80}',
+            "example": '{"folder_ref":"00000000-0000-4000-8000-000000000002","limit":80}',
         },
         {
             "name": "devonthink-link-check-reciprocal",
@@ -231,7 +312,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you need one pairwise consistency check; prefer map-neighborhood for broader context.",
             "degradation_contract": "If authoritative incoming/outgoing properties are unavailable, the tool reports degraded reasoning instead of silently failing.",
-            "example": '{"source_ref":"5038E0B0-2134-4CDA-B443-6558CE283BCC","target_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            "example": '{"source_ref":"5038E0B0-2134-4CDA-B443-6558CE283BCC","target_ref":"00000000-0000-4000-8000-000000000002"}',
         },
         {
             "name": "devonthink-link-build-hub",
@@ -242,7 +323,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "writes_content",
             "prefer_when": "you want a curated hub note; prefer audit or suggest tools when you are still exploring candidates.",
             "degradation_contract": None,
-            "example": '{"group_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","seed_record_refs":["5038E0B0-2134-4CDA-B443-6558CE283BCC"],"hub_name":"Link Hub","mode":"overview"}',
+            "example": '{"group_ref":"00000000-0000-4000-8000-000000000002","seed_record_refs":["5038E0B0-2134-4CDA-B443-6558CE283BCC"],"hub_name":"Link Hub","mode":"overview"}',
         },
         {
             "name": "devonthink-link-enrich-metadata",
@@ -275,7 +356,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "writes_content",
             "prefer_when": "you need scheduled or repeatable folder maintenance with deltas; prefer audit-folder for one-shot inspection.",
             "degradation_contract": "Mode=report is read-only. If no baseline exists, the tool captures one and reports first_run instead of throwing.",
-            "example": '{"folder_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","mode":"report","limit":50,"snapshot_dir":"snapshots"}',
+            "example": '{"folder_ref":"00000000-0000-4000-8000-000000000002","mode":"report","limit":50,"snapshot_dir":"snapshots"}',
         },
         {
             "name": "devonthink-link-traverse-folder",
@@ -286,7 +367,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you need recursive traversal or snapshot export; prefer list-group-children for direct child listing only.",
             "degradation_contract": "Smart groups are handled as saved-query virtual membership and search degradations are reported in observability warnings/stats instead of throwing.",
-            "example": '{"folder_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","limit":200,"mode":"recursive","max_depth":2,"write_snapshot":true}',
+            "example": '{"folder_ref":"00000000-0000-4000-8000-000000000002","limit":200,"mode":"recursive","max_depth":2,"write_snapshot":true}',
         },
         {
             "name": "devonthink-link-compare-snapshots",
@@ -297,7 +378,7 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
             "safety_class": "read_only",
             "prefer_when": "you already have snapshots and want delta analysis; prefer traverse-folder to create or refresh baselines.",
             "degradation_contract": None,
-            "example": '{"folder_ref":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","snapshot_dir":"snapshots"}',
+            "example": '{"folder_ref":"00000000-0000-4000-8000-000000000002","snapshot_dir":"snapshots"}',
         },
         {
             "name": "devonthink-link-prune-snapshots",
@@ -348,6 +429,37 @@ def link_tool_catalog_entries(*, include_tiers: set[str] | None = None) -> list[
                 degradation_contract=item["degradation_contract"],
                 example=item["example"],
                 tags=["devonthink", "link-intelligence", item["tier"]],
+                supports_dry_run=item["name"] in {
+                    "devonthink-link-build-hub",
+                    "devonthink-link-enrich-metadata",
+                    "devonthink-link-repair-links",
+                    "devonthink-link-maintenance-pass",
+                    "devonthink-link-prune-snapshots",
+                },
+                supports_plan=item["name"] in {
+                    "devonthink-link-build-hub",
+                    "devonthink-link-enrich-metadata",
+                    "devonthink-link-repair-links",
+                    "devonthink-link-maintenance-pass",
+                },
+                supports_verify=item["name"] in {
+                    "devonthink-link-build-hub",
+                    "devonthink-link-enrich-metadata",
+                    "devonthink-link-repair-links",
+                    "devonthink-link-maintenance-pass",
+                    "devonthink-link-compare-snapshots",
+                },
+                requires_confirmation=(
+                    item["name"]
+                    in {
+                        "devonthink-link-build-hub",
+                        "devonthink-link-enrich-metadata",
+                        "devonthink-link-repair-links",
+                        "devonthink-link-maintenance-pass",
+                        "devonthink-link-prune-snapshots",
+                    }
+                )
+                or None,
             )
         )
     return entries
@@ -917,7 +1029,22 @@ on text_list_json(theList)
     if n is 0 then return "[]"
     set output to "["
     repeat with i from 1 to n
-        set output to output & my q(item i of theList as text)
+        set itemValue to item i of theList
+        set itemText to ""
+        try
+            set itemText to itemValue as text
+        on error
+            try
+                set itemText to uuid of itemValue as text
+            on error
+                try
+                    set itemText to name of itemValue as text
+                on error
+                    set itemText to ""
+                end try
+            end try
+        end try
+        set output to output & my q(itemText)
         if i is not n then set output to output & ","
     end repeat
     return output & "]"
@@ -1412,7 +1539,22 @@ on text_list_json(theList)
     if n is 0 then return "[]"
     set output to "["
     repeat with i from 1 to n
-        set output to output & my q(item i of theList as text)
+        set itemValue to item i of theList
+        set itemText to ""
+        try
+            set itemText to itemValue as text
+        on error
+            try
+                set itemText to uuid of itemValue as text
+            on error
+                try
+                    set itemText to name of itemValue as text
+                on error
+                    set itemText to ""
+                end try
+            end try
+        end try
+        set output to output & my q(itemText)
         if i is not n then set output to output & ","
     end repeat
     return output & "]"
@@ -2769,23 +2911,28 @@ def devonthink_link_build_hub(
     seed_record_refs: list[str],
     hub_name: str = "Link Hub",
     mode: str = "overview",
+    plan_id: str | None = None,
+    hub_mode: str | None = None,
 ) -> dict[str, Any]:
     started = time.time()
+    lifecycle_mode = mode if mode in {"report", "apply"} else "legacy_apply"
+    render_mode = hub_mode or ("overview" if lifecycle_mode in {"report", "apply"} else mode)
     inputs = {
         "group_ref": group_ref,
         "seed_record_refs": seed_record_refs,
         "hub_name": hub_name,
-        "mode": mode,
+        "mode": lifecycle_mode,
+        "hub_mode": render_mode,
+        "plan_id": plan_id,
     }
     warnings: list[str] = []
 
     try:
         if not seed_record_refs:
             raise ValueError("seed_record_refs must contain at least one record reference.")
-        if mode not in {"overview", "index", "reading-list", "topic-map"}:
-            raise ValueError("mode must be one of: overview, index, reading-list, topic-map.")
+        if render_mode not in {"overview", "index", "reading-list", "topic-map"}:
+            raise ValueError("hub_mode must be one of: overview, index, reading-list, topic-map.")
         group_record = _get_record(group_ref)
-        _assert_record_writable(group_record, operation="build_hub")
 
         rows = []
         for ref in seed_record_refs:
@@ -2809,19 +2956,19 @@ def devonthink_link_build_hub(
             "index": "# Hub Index",
             "reading-list": "# Reading List",
             "topic-map": "# Topic Map",
-        }[mode]
+        }[render_mode]
 
         lines: list[str] = [heading, "", f"Generated: {_iso_utc_now()}", ""]
-        if mode == "overview":
+        if render_mode == "overview":
             lines.extend(["| Name | Description |", "|---|---|"])
             for r in rows:
                 cell_link = _md_link(r["name"], r["link"]).replace("|", r"\|")
                 cell_desc = (r["description"] or "").replace("|", r"\|").replace("\n", " ")
                 lines.append(f"| {cell_link} | {cell_desc} |")
-        elif mode == "reading-list":
+        elif render_mode == "reading-list":
             for r in rows:
                 lines.append(f"- [ ] {_md_link(r['name'], r['link'])} — {r['description']}")
-        elif mode == "topic-map":
+        elif render_mode == "topic-map":
             grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
             for r in rows:
                 key = (r.get("tags") or ["(untagged)"])[0]
@@ -2836,18 +2983,46 @@ def devonthink_link_build_hub(
                 lines.append(f"- {_md_link(r['name'], r['link'])} — {r['description']}")
 
         body = "\n".join(lines)
+        data = {
+            "hub_record": None,
+            "entries": rows,
+            "mode": lifecycle_mode,
+            "hub_mode": render_mode,
+            "actionable_rows": rows,
+        }
+        if lifecycle_mode == "report":
+            _add_plan_fields("devonthink-link-build-hub", inputs, data, rows)
+            return _response(
+                tool="devonthink-link-build-hub",
+                started_at=started,
+                inputs=inputs,
+                ok=True,
+                data=data,
+                warnings=warnings,
+                stats={"entry_count": len(rows)},
+            )
+        if lifecycle_mode == "apply":
+            ok_plan, plan_error = _validate_link_plan("devonthink-link-build-hub", plan_id, rows)
+            if not ok_plan:
+                return _response(
+                    tool="devonthink-link-build-hub",
+                    started_at=started,
+                    inputs=inputs,
+                    ok=False,
+                    error=plan_error,
+                    warnings=warnings,
+                )
+
+        _assert_record_writable(group_record, operation="build_hub")
         hub_record = _create_or_update_markdown_note(group_ref, hub_name, body)
+        data["hub_record"] = hub_record
 
         return _response(
             tool="devonthink-link-build-hub",
             started_at=started,
             inputs=inputs,
             ok=True,
-            data={
-                "hub_record": hub_record,
-                "entries": rows,
-                "mode": mode,
-            },
+            data=data,
             warnings=warnings,
             stats={"entry_count": len(rows)},
         )
@@ -2880,9 +3055,10 @@ def devonthink_link_enrich_metadata(
     record_ref: str,
     mode: str = "suggest",
     custom_key: str | None = None,
+    plan_id: str | None = None,
 ) -> dict[str, Any]:
     started = time.time()
-    inputs = {"record_ref": record_ref, "mode": mode, "custom_key": custom_key}
+    inputs = {"record_ref": record_ref, "mode": mode, "custom_key": custom_key, "plan_id": plan_id}
 
     try:
         if mode not in {"suggest", "apply"}:
@@ -2893,7 +3069,32 @@ def devonthink_link_enrich_metadata(
         suggestions = _derive_metadata_suggestions(rec, text)
 
         applied = {"tags": False, "comment": False, "custom_metadata": False}
+        actionable_rows = [{"record_uuid": rec.get("uuid") or record_ref, "suggestions": suggestions, "custom_key": custom_key}]
+        if mode == "suggest":
+            data = {
+                "record": rec,
+                "suggestions": suggestions,
+                "applied": applied,
+                "actionable_rows": actionable_rows,
+            }
+            _add_plan_fields("devonthink-link-enrich-metadata", inputs, data, actionable_rows)
+            return _response(
+                tool="devonthink-link-enrich-metadata",
+                started_at=started,
+                inputs=inputs,
+                ok=True,
+                data=data,
+            )
         if mode == "apply":
+            ok_plan, plan_error = _validate_link_plan("devonthink-link-enrich-metadata", plan_id, actionable_rows)
+            if not ok_plan:
+                return _response(
+                    tool="devonthink-link-enrich-metadata",
+                    started_at=started,
+                    inputs=inputs,
+                    ok=False,
+                    error=plan_error,
+                )
             _assert_record_writable(rec, operation="enrich_metadata")
             _set_comment_and_tags(record_ref, suggestions["suggested_comment"], suggestions["suggested_tags"])
             applied["tags"] = True
@@ -2964,9 +3165,10 @@ def devonthink_link_repair_links(
     record_ref: str,
     mode: str = "report",
     remove_uuids: list[str] | None = None,
+    plan_id: str | None = None,
 ) -> dict[str, Any]:
     started = time.time()
-    inputs = {"record_ref": record_ref, "mode": mode, "remove_uuids": remove_uuids or []}
+    inputs = {"record_ref": record_ref, "mode": mode, "remove_uuids": remove_uuids or [], "plan_id": plan_id}
     warnings: list[str] = []
 
     try:
@@ -3012,6 +3214,22 @@ def devonthink_link_repair_links(
         tombstone_links_found = 0
 
         if mode == "apply":
+            report_rows = {
+                "unresolved_item_links": unresolved_item_links,
+                "unresolved_wikilinks": unresolved_wikilinks,
+                "tombstone_uuids": tombstone_uuids,
+                "raw_uuids": raw_uuids,
+            }
+            ok_plan, plan_error = _validate_link_plan("devonthink-link-repair-links", plan_id, report_rows)
+            if not ok_plan:
+                return _response(
+                    tool="devonthink-link-repair-links",
+                    started_at=started,
+                    inputs=inputs,
+                    ok=False,
+                    error=plan_error,
+                    warnings=warnings,
+                )
             _assert_content_writable(rec, operation="repair_links")
             # Canonicalize scheme casing and convert resolvable bare UUIDs to item links.
             for uuid in raw_uuids:
@@ -3049,19 +3267,30 @@ def devonthink_link_repair_links(
                 item_link = f"x-devonthink-item://{tombstone_uuid}"
                 tombstone_links_found += text.count(item_link)
 
+        data = {
+            "unresolved_item_links": unresolved_item_links,
+            "unresolved_wikilinks": unresolved_wikilinks,
+            "replacements": replacements,
+            "changed": bool(replacements),
+            "tombstone_uuids": tombstone_uuids,
+            "tombstone_links_found": tombstone_links_found,
+        }
+        if mode == "report":
+            report_rows = {
+                "unresolved_item_links": unresolved_item_links,
+                "unresolved_wikilinks": unresolved_wikilinks,
+                "tombstone_uuids": tombstone_uuids,
+                "raw_uuids": raw_uuids,
+            }
+            data["actionable_rows"] = report_rows
+            _add_plan_fields("devonthink-link-repair-links", inputs, data, report_rows)
+
         return _response(
             tool="devonthink-link-repair-links",
             started_at=started,
             inputs=inputs,
             ok=True,
-            data={
-                "unresolved_item_links": unresolved_item_links,
-                "unresolved_wikilinks": unresolved_wikilinks,
-                "replacements": replacements,
-                "changed": bool(replacements),
-                "tombstone_uuids": tombstone_uuids,
-                "tombstone_links_found": tombstone_links_found,
-            },
+            data=data,
             warnings=warnings,
             stats={"unresolved_count": len(unresolved_item_links) + len(unresolved_wikilinks)},
         )
@@ -3074,9 +3303,10 @@ def devonthink_link_maintenance_pass(
     mode: str = "report",
     limit: int = 50,
     snapshot_dir: str = "snapshots",
+    plan_id: str | None = None,
 ) -> dict[str, Any]:
     started = time.time()
-    inputs = {"folder_ref": folder_ref, "mode": mode, "limit": limit, "snapshot_dir": snapshot_dir}
+    inputs = {"folder_ref": folder_ref, "mode": mode, "limit": limit, "snapshot_dir": snapshot_dir, "plan_id": plan_id}
     warnings: list[str] = []
 
     row_specs = {
@@ -3126,30 +3356,44 @@ def devonthink_link_maintenance_pass(
                 folder_uuid, snapshot_dir
             )
         except ValueError:
+            data = {
+                "first_run": True,
+                "mode": mode,
+                "folder_uuid": folder_uuid,
+                "folder": folder,
+                "message": "No baseline found. Current state captured as baseline. Run again to see deltas.",
+                "shape_distribution": current_shapes,
+                "coverage_pct": current_coverage,
+                "snapshot_written": current_snapshot_path,
+                "snapshot_meta_written": current_meta_path,
+                "traversal_meta": traversal_meta,
+                "actionable_rows": [],
+                "summary": {
+                    "rows_by_severity": {"high": 0, "medium": 0, "info": 0},
+                    "tombstoned_count": 0,
+                    "resolved_orphan_count": 0,
+                    "hub_notes_repaired": 0,
+                },
+            }
+            if mode == "report":
+                _add_plan_fields("devonthink-link-maintenance-pass", inputs, data, [])
+            elif mode == "apply":
+                ok_plan, plan_error = _validate_link_plan("devonthink-link-maintenance-pass", plan_id, [])
+                if not ok_plan:
+                    return _response(
+                        tool="devonthink-link-maintenance-pass",
+                        started_at=started,
+                        inputs=inputs,
+                        ok=False,
+                        error=plan_error,
+                        warnings=warnings,
+                    )
             return _response(
                 tool="devonthink-link-maintenance-pass",
                 started_at=started,
                 inputs=inputs,
                 ok=True,
-                data={
-                    "first_run": True,
-                    "mode": mode,
-                    "folder_uuid": folder_uuid,
-                    "folder": folder,
-                    "message": "No baseline found. Current state captured as baseline. Run again to see deltas.",
-                    "shape_distribution": current_shapes,
-                    "coverage_pct": current_coverage,
-                    "snapshot_written": current_snapshot_path,
-                    "snapshot_meta_written": current_meta_path,
-                    "traversal_meta": traversal_meta,
-                    "actionable_rows": [],
-                    "summary": {
-                        "rows_by_severity": {"high": 0, "medium": 0, "info": 0},
-                        "tombstoned_count": 0,
-                        "resolved_orphan_count": 0,
-                        "hub_notes_repaired": 0,
-                    },
-                },
+                data=data,
                 warnings=warnings,
                 stats={
                     "first_run": 1,
@@ -3158,7 +3402,15 @@ def devonthink_link_maintenance_pass(
                 },
             )
 
-        # Compare current snapshot against previous baseline snapshot.
+        plan_context = _link_plan_context("devonthink-link-maintenance-pass", plan_id) if mode == "apply" else {}
+        if plan_context.get("baseline_snapshot") and current_snapshot_path:
+            baseline_path = Path(str(plan_context["baseline_snapshot"])).expanduser().resolve()
+            baseline_meta_path = Path(str(plan_context.get("baseline_meta") or "")).expanduser().resolve()
+            latest_path = Path(str(current_snapshot_path)).expanduser().resolve()
+            latest_meta_path = Path(str(current_meta_path or "")).expanduser().resolve()
+
+        # Compare the plan baseline against current state. For apply, the
+        # baseline must be the one used by report mode, not the previous run.
         compare_resp = devonthink_link_compare_snapshots(
             baseline_snapshot=str(baseline_path),
             current_snapshot=str(latest_path),
@@ -3308,6 +3560,18 @@ def devonthink_link_maintenance_pass(
             actionable_rows.append(row)
             rows_by_severity[severity] += 1
 
+        if mode == "apply":
+            ok_plan, plan_error = _validate_link_plan("devonthink-link-maintenance-pass", plan_id, actionable_rows)
+            if not ok_plan:
+                return _response(
+                    tool="devonthink-link-maintenance-pass",
+                    started_at=started,
+                    inputs=inputs,
+                    ok=False,
+                    error=plan_error,
+                    warnings=warnings,
+                )
+
         hub_notes_repaired = 0
         hub_repairs: list[dict[str, Any]] = []
         if mode == "apply":
@@ -3319,10 +3583,16 @@ def devonthink_link_maintenance_pass(
                     if _coerce_text(node.get("connectivity_shape")).strip().lower() == "hub"
                 ]
                 for hub_uuid in hub_uuids:
+                    repair_report = devonthink_link_repair_links(
+                        hub_uuid,
+                        mode="report",
+                        remove_uuids=tombstoned_uuids,
+                    )
                     repair = devonthink_link_repair_links(
                         hub_uuid,
                         mode="apply",
                         remove_uuids=tombstoned_uuids,
+                        plan_id=(repair_report.get("data") or {}).get("plan_id"),
                     )
                     changed = bool((repair.get("data") or {}).get("changed"))
                     if repair.get("ok") and changed:
@@ -3347,27 +3617,42 @@ def devonthink_link_maintenance_pass(
             "hub_notes_repaired": hub_notes_repaired,
         }
 
+        data = {
+            "first_run": False,
+            "mode": mode,
+            "folder_uuid": folder_uuid,
+            "folder": folder,
+            "health_verdict": diff.get("health_verdict") or "stable",
+            "coverage_delta_pct": ((diff.get("coverage_delta") or {}).get("delta_pct")),
+            "actionable_rows": actionable_rows,
+            "summary": summary,
+            "snapshot_written": current_snapshot_path,
+            "snapshot_meta_written": current_meta_path,
+            "snapshot_prune_advisory": prune_advisory,
+            "diff": diff,
+            "hub_repairs": hub_repairs,
+            "traversal_meta": traversal_meta,
+        }
+        if mode == "report":
+            _add_plan_fields(
+                "devonthink-link-maintenance-pass",
+                inputs,
+                data,
+                actionable_rows,
+                context={
+                    "baseline_snapshot": str(baseline_path),
+                    "baseline_meta": str(baseline_meta_path),
+                    "report_snapshot": str(latest_path),
+                    "report_meta": str(latest_meta_path),
+                },
+            )
+
         return _response(
             tool="devonthink-link-maintenance-pass",
             started_at=started,
             inputs=inputs,
             ok=True,
-            data={
-                "first_run": False,
-                "mode": mode,
-                "folder_uuid": folder_uuid,
-                "folder": folder,
-                "health_verdict": diff.get("health_verdict") or "stable",
-                "coverage_delta_pct": ((diff.get("coverage_delta") or {}).get("delta_pct")),
-                "actionable_rows": actionable_rows,
-                "summary": summary,
-                "snapshot_written": current_snapshot_path,
-                "snapshot_meta_written": current_meta_path,
-                "snapshot_prune_advisory": prune_advisory,
-                "diff": diff,
-                "hub_repairs": hub_repairs,
-                "traversal_meta": traversal_meta,
-            },
+            data=data,
             warnings=warnings,
             stats=_merge_observability(
                 {
@@ -4071,6 +4356,7 @@ def devonthink_link_compare_snapshots(
     current_meta: str | None = None,
     folder_ref: str | None = None,
     snapshot_dir: str = "snapshots",
+    plan_id: str | None = None,
 ) -> dict[str, Any]:
     started = time.time()
     inputs = {
@@ -4080,6 +4366,7 @@ def devonthink_link_compare_snapshots(
         "current_meta": current_meta,
         "folder_ref": folder_ref,
         "snapshot_dir": snapshot_dir,
+        "plan_id": plan_id,
     }
 
     try:
@@ -4229,13 +4516,48 @@ def devonthink_link_compare_snapshots(
                 "delta_pct": coverage_delta,
             },
         }
+        verification_checks = [
+            {
+                "claim": "snapshot_files_loaded",
+                "passed": True,
+                "details": "Both adjacency snapshots and metadata sidecars loaded as JSON objects.",
+            },
+            {
+                "claim": "coverage_delta_computed",
+                "passed": isinstance(coverage_delta, float),
+                "details": "Baseline and current graph coverage were compared.",
+            },
+            {
+                "claim": "health_verdict_assigned",
+                "passed": health_verdict in {"improved", "degraded", "restructured", "stable"},
+                "details": f"Health verdict is {health_verdict}.",
+            },
+        ]
+        confidence_score = 0.95 if elapsed_seconds >= recommended_interval_seconds else 0.72
+        risk = {
+            "safety_class": "analysis_only",
+            "snapshot_churn_ratio_pct": churn_ratio,
+            "health_verdict": health_verdict,
+        }
 
         return _response(
             tool="devonthink-link-compare-snapshots",
             started_at=started,
             inputs=inputs,
             ok=True,
-            data={"diff": diff},
+            data={
+                "diff": diff,
+                "plan_id": plan_id,
+                "verification": {
+                    "status": "verified" if all(check["passed"] for check in verification_checks) else "failed",
+                    "checks": verification_checks,
+                },
+                "confidence": {
+                    "score": confidence_score,
+                    "rationale": "Snapshot diff is based on structured adjacency maps; confidence is lower for snapshots captured close together.",
+                },
+                "risk": risk,
+            },
             stats={
                 "nodes_added_count": len(nodes_added),
                 "nodes_removed_count": len(nodes_removed),
@@ -4302,6 +4624,7 @@ def devonthink_link_prune_snapshots(
     retention: dict[str, Any] | None = None,
     mode: str = "report",
     archive_dir: str | None = None,
+    protect_referenced_plans: bool = True,
 ) -> dict[str, Any]:
     started = time.time()
     inputs = {
@@ -4309,6 +4632,7 @@ def devonthink_link_prune_snapshots(
         "retention": retention or {},
         "mode": mode,
         "archive_dir": archive_dir,
+        "protect_referenced_plans": protect_referenced_plans,
     }
 
     try:
@@ -4383,6 +4707,7 @@ def devonthink_link_prune_snapshots(
 
         keep_paths: set[Path] = set()
         protected_reasons: dict[Path, str] = {}
+        referenced = referenced_snapshots() if protect_referenced_plans else {}
 
         # Keep most recent N pairs always.
         for pair in valid_pairs[: policy["keep_last_n"]]:
@@ -4437,6 +4762,17 @@ def devonthink_link_prune_snapshots(
                         "base_snapshot": str(pair["base_path"]),
                         "meta_snapshot": str(pair["meta_path"]),
                         "reason": "explicit_named_snapshot",
+                    }
+                )
+                continue
+            referenced_by = referenced.get(str(pair["base_path"])) or referenced.get(pair["base_path"].name)
+            if referenced_by:
+                protected.append(
+                    {
+                        "base_snapshot": str(pair["base_path"]),
+                        "meta_snapshot": str(pair["meta_path"]),
+                        "reason": "referenced_by_applied_plan",
+                        "plan_id": referenced_by,
                     }
                 )
                 continue
@@ -4509,6 +4845,7 @@ def devonthink_link_prune_snapshots(
                 "snapshot_dir": str(root),
                 "archive_dir": str(archive_root),
                 "retention_policy": policy,
+                "protect_referenced_plans": protect_referenced_plans,
                 "summary": {
                     "valid_pair_count": len(valid_pairs),
                     "candidate_count": len(to_prune),
@@ -4635,6 +4972,8 @@ def register_devonthink_link_tools(
             seed_record_refs: list[str],
             hub_name: str = "Link Hub",
             mode: str = "overview",
+            plan_id: str | None = None,
+            hub_mode: str | None = None,
         ) -> dict[str, Any]:
             return wrap_tool_call(
                 "devonthink-link-build-hub",
@@ -4643,6 +4982,8 @@ def register_devonthink_link_tools(
                 seed_record_refs=seed_record_refs,
                 hub_name=hub_name,
                 mode=mode,
+                plan_id=plan_id,
+                hub_mode=hub_mode,
             )
 
     if _enabled("devonthink-link-enrich-metadata"):
@@ -4650,13 +4991,19 @@ def register_devonthink_link_tools(
             name="devonthink-link-enrich-metadata",
             description=catalog["devonthink-link-enrich-metadata"]["description"],
         )
-        def _tool_link_enrich_metadata(record_ref: str, mode: str = "suggest", custom_key: str | None = None) -> dict[str, Any]:
+        def _tool_link_enrich_metadata(
+            record_ref: str,
+            mode: str = "suggest",
+            custom_key: str | None = None,
+            plan_id: str | None = None,
+        ) -> dict[str, Any]:
             return wrap_tool_call(
                 "devonthink-link-enrich-metadata",
                 devonthink_link_enrich_metadata,
                 record_ref=record_ref,
                 mode=mode,
                 custom_key=custom_key,
+                plan_id=plan_id,
             )
 
     if _enabled("devonthink-link-repair-links"):
@@ -4668,6 +5015,7 @@ def register_devonthink_link_tools(
             record_ref: str,
             mode: str = "report",
             remove_uuids: list[str] | None = None,
+            plan_id: str | None = None,
         ) -> dict[str, Any]:
             return wrap_tool_call(
                 "devonthink-link-repair-links",
@@ -4675,6 +5023,7 @@ def register_devonthink_link_tools(
                 record_ref=record_ref,
                 mode=mode,
                 remove_uuids=remove_uuids,
+                plan_id=plan_id,
             )
 
     if _enabled("devonthink-link-maintenance-pass"):
@@ -4687,6 +5036,7 @@ def register_devonthink_link_tools(
             mode: str = "report",
             limit: int = 50,
             snapshot_dir: str = "snapshots",
+            plan_id: str | None = None,
         ) -> dict[str, Any]:
             return wrap_tool_call(
                 "devonthink-link-maintenance-pass",
@@ -4695,6 +5045,7 @@ def register_devonthink_link_tools(
                 mode=mode,
                 limit=limit,
                 snapshot_dir=snapshot_dir,
+                plan_id=plan_id,
             )
 
     if _enabled("devonthink-link-detect-bridges"):
@@ -4766,6 +5117,7 @@ def register_devonthink_link_tools(
             current_meta: str | None = None,
             folder_ref: str | None = None,
             snapshot_dir: str = "snapshots",
+            plan_id: str | None = None,
         ) -> dict[str, Any]:
             return wrap_tool_call(
                 "devonthink-link-compare-snapshots",
@@ -4776,6 +5128,7 @@ def register_devonthink_link_tools(
                 current_meta=current_meta,
                 folder_ref=folder_ref,
                 snapshot_dir=snapshot_dir,
+                plan_id=plan_id,
             )
 
     if _enabled("devonthink-link-prune-snapshots"):
@@ -4788,6 +5141,7 @@ def register_devonthink_link_tools(
             retention: dict[str, Any] | None = None,
             mode: str = "report",
             archive_dir: str | None = None,
+            protect_referenced_plans: bool = True,
         ) -> dict[str, Any]:
             return wrap_tool_call(
                 "devonthink-link-prune-snapshots",
@@ -4796,4 +5150,5 @@ def register_devonthink_link_tools(
                 retention=retention,
                 mode=mode,
                 archive_dir=archive_dir,
+                protect_referenced_plans=protect_referenced_plans,
             )

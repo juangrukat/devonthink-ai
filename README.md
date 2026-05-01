@@ -28,7 +28,7 @@ This repo exposes DEVONthink automation as MCP tools (AppleScript-backed), with 
 
 ## What You Can Do
 
-Prompted with the following: "identify the tags in DEVONthink, and create a hub note that presents the tags in a hierarchy with related tags grouped together" Deepseek 4 output: 
+A representative workflow: ask an MCP client to identify DEVONthink tags and create a hub note that groups related tags into a hierarchy.
 
 ![Example 1](image/example1.png)
 
@@ -139,6 +139,11 @@ All link-intelligence tools return a versioned response envelope with:
 - `contract.toolset_version`
 - `observability` (duration, warnings, stats)
 
+Act-layer link tools now use report/apply gating. Run `mode=report` first and pass the returned
+`data.plan_id` to `mode=apply`; apply mode refuses missing, expired, or stale plans. This applies to
+`devonthink-link-maintenance-pass`, `devonthink-link-repair-links`,
+`devonthink-link-build-hub`, and `devonthink-link-enrich-metadata`.
+
 `devonthink-link-traverse-folder` additionally supports:
 - cursor-based resume (`cursor`)
 - node-first adjacency map + flat edge list
@@ -152,19 +157,20 @@ All link-intelligence tools return a versioned response envelope with:
 - auto-discovery mode by `folder_ref` using the two most recent snapshots in `snapshot_dir`
 - tombstone-aware edge removals (`removal_reason: tombstoned|unlinked`)
 - `diff_confidence` and `health_verdict` summary fields
+- structured `verification.checks`, `confidence`, `risk`, and optional `plan_id` linkage
 
 `devonthink-link-prune-snapshots` additionally supports:
 - conservative tiered retention policy with non-destructive defaults
 - explicit dry-run mode (`mode=report`) before any file mutations
 - archive-first apply mode (`mode=apply`) with optional hard-delete threshold
+- protection for snapshots referenced by recently applied lifecycle plans
 
 > Note: DEVONthink returns `Invalid argument (-50)` when `search` is called with a *database* object as the `in` argument. Link tools handle this by degrading gracefully and incrementing `observability.stats.search_calls_degraded`. The `devonthink-search-records` tool resolves this automatically: if `database_uuid` receives a database UUID, it fetches the database's `incoming group` and uses that as the search scope instead. Pass a **group UUID** to scope search to a specific folder; pass a **database UUID** to scope to the database root. The raw `devonthink-search` dictionary wrapper now applies the same group-or-database UUID guard for its `in` parameter.
 > Note: Smart Groups are traversed as saved queries (via `search predicates` + `search group`), not as physical children. Output marks this with `membership_type: virtual` and `children_source: smart_group_query`.
 
 ## AppleScript Compatibility Notes
 
-DEVONthink's AppleScript model mixes **typed enumerations** and **plain-string properties**.
-Knowing which is which prevents silent failures.
+DEVONthink's AppleScript model mixes typed enumerations, localized strings, command-form quirks, and record-type limitations. Use `devonthink-inspect-quirks` to query the machine-readable registry by tool, operation, record type, AppleScript command, or severity; the old prose notes below are intentionally collapsed into that registry so agents can inspect the active contract before acting.
 
 ### `type` vs `kind`
 
@@ -306,7 +312,7 @@ DEVONthink and are detectable via content scanning.
 
 The server exposes two layers:
 
-Reminder tools now use the standard response envelope introduced in contract version `1.0`:
+Reminder and lifecycle tools now use the standard response envelope introduced in contract version `1.0`:
 canonical payload fields live under `data`, while legacy top-level fields such as `record_uuid`
 remain as temporary aliases and are listed in `observability.warnings`.
 
@@ -319,6 +325,7 @@ remain as temporary aliases and are listed in `observability.warnings`.
 - `devonthink-create-record`
 - `devonthink-link-*` (tiered link intelligence tools)
 - `devonthink-link-maintenance-pass` — delta-based health reporting against snapshot baseline
+- `devonthink-inspect-quirks` — queryable AppleScript compatibility registry
 
 2. Generated dictionary tools (broad coverage)
 - names follow `devonthink-<action>`
@@ -483,14 +490,15 @@ Rows are only emitted when something changed. A stable run produces zero rows.
 ### Modes
 
 - `mode=report` — dry run, no writes, no snapshot update
-- `mode=apply` — writes repairs, updates snapshot, includes prune advisory
+- `mode=apply` — requires `plan_id`, writes repairs, updates snapshot, includes prune advisory
 
 ### Apply mode behavior
 
 In apply mode, the tool:
 1. Runs a fresh traversal and writes a new snapshot
-2. Cleans dead links from hub notes for any tombstoned records
-3. Includes a `snapshot_prune_advisory` showing what old snapshots
+2. Verifies the current actionable rows match the report plan
+3. Cleans dead links from hub notes for any tombstoned records
+4. Includes a `snapshot_prune_advisory` showing what old snapshots
    could be pruned (pruning requires a separate explicit
    `devonthink-link-prune-snapshots(mode=apply)` call)
 
@@ -572,25 +580,27 @@ Not exposed by design:
 
 ## Testing
 
-Integration tests run against a live DEVONthink instance using a disposable fixture corpus:
+Integration tests run against a live DEVONthink instance using a disposable fixture corpus. Configure local fixture UUIDs through environment variables instead of committing machine-specific DEVONthink identifiers:
 
 ```bash
+export DEVONTHINK_TEST_DATABASE_UUID="your-test-database-uuid"
+export DEVONTHINK_TEST_SCHOLAR_GROUP_UUID="your-fixture-group-uuid"
 python tests/test_scholar_corpus.py
 # or
 python -m pytest tests/ -v
 ```
 
-The main test fixture (`MCP Test - Scholar Corpus` in Inbox) consists of 12 records across three
+The main test fixture consists of 12 records across three
 groups (Concordance Discovery, Archive Reconstruction, Chronological Assembly) and covers all
 canonical tools.
 
-The edge-case stress fixture is `MCP Chaos Lab 20260424-080344`
-(`3EFAAB4A-5BCD-4699-A472-1F66EF3C7882`). It was created from live files to validate unusual
+The optional edge-case stress fixture is configured with `DEVONTHINK_TEST_CHAOS_GROUP_UUID`.
+It should contain unusual
 combinations: annotation notes on PDFs/groups/smart groups/annotation notes, duplicate-record
 syntax, smart groups, RTF/RTFD caveats, labels/ratings on annotation notes, and summarize-annotation
 missing-value behavior. Keep it as a named fixture unless intentionally regenerating live stress data.
 
-Fixture UUIDs are exposed in `tests/conftest.py`. Test data is erasable unless explicitly kept as a
+Fixture UUIDs are read in `tests/conftest.py`. Test data is erasable unless explicitly kept as a
 fixture. Tests require DEVONthink to be running and Automation permission granted to the Python host.
 
 ---

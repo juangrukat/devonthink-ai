@@ -23,6 +23,7 @@ Exit code is non-zero if any assertion fails.
 
 from __future__ import annotations
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -33,7 +34,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.tools import devonthink_link_tools as L  # noqa: E402
 
-INBOX_DB_UUID = "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+INBOX_DB_UUID = os.environ.get("DEVONTHINK_TEST_DATABASE_UUID", "00000000-0000-4000-8000-000000000001")
 
 
 def _create_group(name: str) -> str:

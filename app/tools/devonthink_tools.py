@@ -553,6 +553,7 @@ on record_json(theRecord)
     set r_modified to missing value
     set r_added to missing value
     set r_database_uuid to missing value
+    set r_parent_uuid to missing value
     set r_indexed to missing value
     set r_unread to missing value
     set r_flagged to missing value
@@ -640,6 +641,12 @@ on record_json(theRecord)
         set r_database_uuid to uuid of (database of theRecord)
     end try
     try
+        set parentRecords to parents of theRecord
+        if (count of parentRecords) is greater than 0 then
+            set r_parent_uuid to uuid of (item -1 of parentRecords)
+        end if
+    end try
+    try
         set r_indexed to indexed of theRecord
     end try
     try
@@ -684,6 +691,7 @@ on record_json(theRecord)
         "\"added\":" & my maybe_text(r_added) & "," & ¬
         "\"added_ts\":" & my maybe_date_seconds(r_added) & "," & ¬
         "\"database_uuid\":" & my maybe_text(r_database_uuid) & "," & ¬
+        "\"parent_uuid\":" & my maybe_text(r_parent_uuid) & "," & ¬
         "\"indexed\":" & my maybe_bool(r_indexed) & "," & ¬
         "\"unread\":" & my maybe_bool(r_unread) & "," & ¬
         "\"flagged\":" & my maybe_bool(r_flagged) & "," & ¬
@@ -2073,6 +2081,48 @@ end run
         return {"ok": False, "error": str(exc)}
 
 
+def devonthink_move(record_uuid: str, destination_group_uuid: str) -> dict[str, Any]:
+    """Move one DEVONthink record into a destination group."""
+
+    try:
+        cleaned_record_uuid = _validate_uuid(record_uuid, "record_uuid")
+        cleaned_destination_uuid = _validate_uuid(destination_group_uuid, "destination_group_uuid")
+    except ValueError as exc:
+        return {"ok": False, "error": str(exc)}
+
+    script = _DEVONTHINK_JSON_HELPERS + r'''
+on run argv
+    set recordUUID to item 1 of argv
+    set destinationUUID to item 2 of argv
+    tell application id "DNtp"
+        set theRecord to get record with uuid recordUUID
+        if theRecord is missing value then error "Record not found for uuid: " & recordUUID
+        set destinationGroup to get record with uuid destinationUUID
+        if destinationGroup is missing value then error "Destination group not found for uuid: " & destinationUUID
+        if record type of destinationGroup is not group then error "Destination record is not a group: " & destinationUUID
+        move record theRecord to destinationGroup
+        return my record_json(theRecord)
+    end tell
+end run
+'''
+    try:
+        result = _run_json_script(
+            script,
+            [cleaned_record_uuid, cleaned_destination_uuid],
+            tool_name="devonthink-move",
+            extra={"record_uuid": cleaned_record_uuid, "destination_group_uuid": cleaned_destination_uuid},
+        )
+        data = result.get("data")
+        return {
+            "ok": True,
+            "data": _enrich_record(data) if isinstance(data, dict) else data,
+            "record_uuid": cleaned_record_uuid,
+            "destination_group_uuid": cleaned_destination_uuid,
+        }
+    except AppleScriptExecutionError as exc:
+        return {"ok": False, "error": str(exc)}
+
+
 def devonthink_summarize_annotations(record_uuids: list[str], destination_group_uuid: str) -> dict[str, Any]:
     """Summarize PDF/internal annotations into a markdown record in a destination group."""
 
@@ -2141,7 +2191,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 identifier_guidance="Accepts a database UUID. Prefer the database UUID over path lookups for stable automation.",
                 safety_class="read_only",
                 prefer_when="you need exact database identity; prefer devonthink-get-database-incoming-group or devonthink-search-records when your next step is folder-scoped retrieval.",
-                example='{"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+                example='{"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2159,7 +2209,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             safety_class="read_only",
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you need exact database metadata rather than a search scope helper.",
-            example='{"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+            example='{"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             tags=["devonthink", "specialized", "database"],
         )
     )
@@ -2172,7 +2222,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 identifier_guidance="Accepts a database UUID. Prefer the database UUID; this tool returns the incoming group UUID you can reuse in search, move, and traversal calls.",
                 safety_class="read_only",
                 prefer_when="you need explicit Inbox/root-group access; prefer devonthink-get-database-by-uuid when you only need database metadata.",
-                example='{"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+                example='{"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2190,7 +2240,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             safety_class="read_only",
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you need the actual searchable/writable group scope behind a database UUID.",
-            example='{"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+            example='{"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             tags=["devonthink", "specialized", "database", "inbox"],
         )
     )
@@ -2203,7 +2253,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 identifier_guidance="Accepts a record UUID, optionally with a database UUID for scoping. Prefer the record UUID over title/path lookups.",
                 safety_class="read_only",
                 prefer_when="you need exact record lookup; prefer devonthink-search-records when you only have query text or metadata clues.",
-                example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+                example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","database_uuid":"00000000-0000-4000-8000-000000000001"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2267,7 +2317,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 identifier_guidance="Accepts a group UUID and optional limit. Prefer a group UUID returned by search, incoming-group lookup, or traversal tools.",
                 safety_class="read_only",
                 prefer_when="you need direct child listing only; prefer devonthink-link-traverse-folder for recursive graph traversal, snapshots, or smart-group handling.",
-                example='{"group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","limit":25}',
+                example='{"group_uuid":"00000000-0000-4000-8000-000000000002","limit":25}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2285,7 +2335,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             safety_class="read_only",
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you need only the immediate folder children and not a recursive graph walk.",
-            example='{"group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B","limit":25}',
+            example='{"group_uuid":"00000000-0000-4000-8000-000000000002","limit":25}',
             tags=["devonthink", "specialized", "group", "hierarchy"],
         )
     )
@@ -2299,7 +2349,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 safety_class="read_only",
                 prefer_when="you need structured search results and automatic database-root scoping; prefer raw devonthink-search only when you need the dictionary command exactly.",
                 degradation_contract="When database_uuid points at a database, the tool degrades intentionally by resolving it to the incoming group instead of throwing the raw DEVONthink Invalid argument (-50) failure.",
-                example='{"query":"tag:inbox","limit":25,"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+                example='{"query":"tag:inbox","limit":25,"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2318,7 +2368,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you want structured results and safe scoping behavior.",
             degradation_contract="Database UUID scope auto-resolves to the incoming group to avoid raw search errors.",
-            example='{"query":"tag:inbox","limit":25,"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+            example='{"query":"tag:inbox","limit":25,"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             tags=["devonthink", "specialized", "search"],
         )
     )
@@ -2372,7 +2422,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 safety_class="read_only",
                 prefer_when="you are looking for real .mp4/.mov/.mkv/.mp3/etc. records and need duration, size, path, MIME type, and record type metadata.",
                 degradation_contract="Uses record type=multimedia rather than localized kind metadata. For media_kind=video/audio it scans up to 200 multimedia records then filters by MIME type, extension, and multimedia kind hints.",
-                example='{"media_kind":"video","limit":25,"database_uuid":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}',
+                example='{"media_kind":"video","limit":25,"database_uuid":"00000000-0000-4000-8000-000000000001"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2408,7 +2458,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 identifier_guidance="Accepts a record name, a normalized record type token or common alias, and an optional group UUID. Prefer a group UUID when the record must land in a specific folder.",
                 safety_class="writes_content",
                 prefer_when="you need a plain static record or group; prefer create-rtf for RTF records and create-smart-group for query-backed smart groups.",
-                example='{"name":"MCP Test Note","record_type":"plain text","group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+                example='{"name":"MCP Test Note","record_type":"plain text","group_uuid":"00000000-0000-4000-8000-000000000002"}',
             ),
             group="devonthink.native",
             tier="advanced",
@@ -2426,7 +2476,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             safety_class="writes_content",
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you need a plain static record or group; prefer create-rtf for RTF records and create-smart-group for query-backed smart groups.",
-            example='{"name":"MCP Test Note","record_type":"plain text","group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            example='{"name":"MCP Test Note","record_type":"plain text","group_uuid":"00000000-0000-4000-8000-000000000002"}',
             tags=["devonthink", "specialized", "create"],
             invocation_pitfalls=[
                 "Use plain text -> txt, rich text -> rtf, image -> picture, pdf -> pdf document.",
@@ -2574,7 +2624,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 identifier_guidance="Accepts a source record UUID and destination group UUID.",
                 safety_class="writes_content",
                 prefer_when="you want an independent duplicate; use replicate when copies should stay linked.",
-                example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","destination_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+                example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","destination_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2592,8 +2642,43 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             safety_class="writes_content",
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you need a standalone copy and structured response metadata.",
-            example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","destination_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","destination_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             tags=["devonthink", "specialized", "duplicate"],
+        )
+    )
+    entries.append(
+        catalog_entry(
+            name="devonthink-move",
+            description=build_description(
+                summary="Move one DEVONthink record into a destination group.",
+                use_when="you need to relocate a record after planning or verifying the target group.",
+                identifier_guidance="Accepts a source record UUID and destination group UUID.",
+                safety_class="moves_records",
+                prefer_when="you need a direct move; use devonthink-plan-operation with Record.Move when stale-plan protection is required.",
+                example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","destination_group_uuid":"00000000-0000-4000-8000-000000000002"}',
+            ),
+            group="devonthink.native",
+            tier="canonical",
+            status="active",
+            canonical_tool="devonthink-move",
+            overlap_family="devonthink-move",
+            source_path="app/tools/devonthink_tools.py",
+            catalog_path="catalog-runtime/tools/devonthink.native/canonical/devonthink-move.json",
+            executable="osascript",
+            priority=100,
+            default_exposed=True,
+            accepted_identifiers=["record_uuid", "group_uuid"],
+            preferred_identifier="record_uuid",
+            identifier_guidance="Accepts a source record UUID and destination group UUID.",
+            safety_class="moves_records",
+            supports_plan=True,
+            supports_verify=True,
+            requires_confirmation=True,
+            mutation_scope="single_record",
+            profile_availability=["minimal", "canonical", "full"],
+            prefer_when="you need a direct move; use lifecycle planning for confirmation-gated moves.",
+            example='{"record_uuid":"5038E0B0-2134-4CDA-B443-6558CE283BCC","destination_group_uuid":"00000000-0000-4000-8000-000000000002"}',
+            tags=["devonthink", "specialized", "move", "record"],
         )
     )
     entries.append(
@@ -2606,7 +2691,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
                 safety_class="writes_content",
                 prefer_when="you want internal PDF annotation markup summarized; use devonthink-read-annotation-note for the attached annotation note stored via the record annotation property.",
                 degradation_contract="Returns data=null with a missing_value warning when DEVONthink returns missing value, commonly because records have attached annotation notes only and no internal PDF markup.",
-                example='{"record_uuids":["5038E0B0-2134-4CDA-B443-6558CE283BCC"],"destination_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+                example='{"record_uuids":["5038E0B0-2134-4CDA-B443-6558CE283BCC"],"destination_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             ),
             group="devonthink.native",
             tier="canonical",
@@ -2625,7 +2710,7 @@ def specialized_tool_catalog_entries() -> list[dict[str, Any]]:
             profile_availability=["minimal", "canonical", "full"],
             prefer_when="you need PDF/internal annotation summaries, not attached annotation-note content.",
             degradation_contract="Missing value is expected for records with attached annotation notes only.",
-            example='{"record_uuids":["5038E0B0-2134-4CDA-B443-6558CE283BCC"],"destination_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            example='{"record_uuids":["5038E0B0-2134-4CDA-B443-6558CE283BCC"],"destination_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             tags=["devonthink", "specialized", "annotations", "pdf"],
         )
     )
@@ -2897,6 +2982,18 @@ def register_devonthink_tools(mcp: Any) -> None:
         return wrap_tool_call(
             "devonthink-duplicate-record",
             devonthink_duplicate_record,
+            record_uuid=record_uuid,
+            destination_group_uuid=destination_group_uuid,
+        )
+
+    @mcp.tool(
+        name="devonthink-move",
+        description=catalog["devonthink-move"]["description"],
+    )
+    def _devonthink_move(record_uuid: str, destination_group_uuid: str) -> dict[str, Any]:
+        return wrap_tool_call(
+            "devonthink-move",
+            devonthink_move,
             record_uuid=record_uuid,
             destination_group_uuid=destination_group_uuid,
         )

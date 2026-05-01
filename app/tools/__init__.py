@@ -7,6 +7,7 @@ from app.tools.devonthink_annotation_tools import register_devonthink_annotation
 from app.tools.devonthink_database_tools import register_devonthink_database_tools
 from app.tools.devonthink_dictionary_tools import register_devonthink_dictionary_tools
 from app.tools.devonthink_link_tools import register_devonthink_link_tools
+from app.tools.devonthink_quirks_tools import register_devonthink_quirks_tools
 from app.tools.devonthink_reminder_tools import register_devonthink_reminder_tools
 from app.tools.devonthink_richtext_tools import register_devonthink_richtext_tools
 from app.tools.devonthink_script_tools import register_devonthink_script_tools
@@ -32,6 +33,7 @@ def register_tools(mcp):
     register_devonthink_smart_tools(mcp)
     register_devonthink_reminder_tools(mcp)
     register_lifecycle_tools(mcp)
+    register_devonthink_quirks_tools(mcp)
     register_devonthink_script_tools(mcp)
     register_devonthink_richtext_tools(mcp)
     if profile == "minimal":

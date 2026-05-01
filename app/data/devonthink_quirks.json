@@ -1,0 +1,90 @@
+[
+  {
+    "id": "type_is_enum_not_string",
+    "title": "Record type is an AppleScript enum, not a string",
+    "affected_tools": ["devonthink-create-record", "devonthink-filter-records", "devonthink-search-media-records"],
+    "operations": ["create", "filter", "search"],
+    "record_types": ["markdown", "txt", "rtf", "group", "pdf document", "picture", "bookmark", "multimedia"],
+    "applescript_commands": ["record type"],
+    "severity": "high",
+    "mitigation": "Validate record_type enum tokens before AppleScript dispatch and avoid string comparisons against the type property.",
+    "signal_tier_impact": "authoritative"
+  },
+  {
+    "id": "database_uuid_search_scope_requires_incoming_group",
+    "title": "Database UUID search scopes must resolve to the incoming group",
+    "affected_tools": ["devonthink-search-records", "devonthink-filter-records", "devonthink-link-traverse-folder"],
+    "operations": ["search", "traverse"],
+    "record_types": ["database", "group"],
+    "applescript_commands": ["search", "incoming group"],
+    "severity": "high",
+    "mitigation": "When a database UUID is supplied as a search scope, resolve the database incoming group and search inside that group.",
+    "signal_tier_impact": "authoritative"
+  },
+  {
+    "id": "tags_lookup_and_semantics",
+    "title": "Tag lookup has AND semantics",
+    "affected_tools": ["devonthink-link-suggest-related", "devonthink-filter-records"],
+    "operations": ["search", "link_analysis"],
+    "record_types": ["any"],
+    "applescript_commands": ["lookup records with tags"],
+    "severity": "medium",
+    "mitigation": "For OR semantics, query one tag at a time and deduplicate records by UUID.",
+    "signal_tier_impact": "structural"
+  },
+  {
+    "id": "labels_vs_tags",
+    "title": "Labels are numeric colors, not workflow tags",
+    "affected_tools": ["devonthink-set-label", "devonthink-batch-set-label", "devonthink-batch-update-record-metadata"],
+    "operations": ["metadata_update"],
+    "record_types": ["any"],
+    "applescript_commands": ["label", "tags", "comment"],
+    "severity": "medium",
+    "mitigation": "Use tags or comments for textual states such as TODO; use label only for DEVONthink color labels 0-7.",
+    "signal_tier_impact": "authoritative"
+  },
+  {
+    "id": "get_links_unsupported_for_markdown_txt",
+    "title": "get links is not supported for markdown and plain text records",
+    "affected_tools": ["devonthink-link-audit-record", "devonthink-link-map-neighborhood", "devonthink-link-repair-links"],
+    "operations": ["link_analysis", "link_repair"],
+    "record_types": ["markdown", "txt"],
+    "applescript_commands": ["get links"],
+    "severity": "medium",
+    "mitigation": "Use native incoming/outgoing references when available and degrade to explicit item-link or wikilink text scanning for markdown/txt.",
+    "signal_tier_impact": "structural"
+  },
+  {
+    "id": "duplicate_command_forms",
+    "title": "Duplicate command requires the record keyword",
+    "affected_tools": ["devonthink-duplicate-record"],
+    "operations": ["duplicate"],
+    "record_types": ["any"],
+    "applescript_commands": ["duplicate record"],
+    "severity": "medium",
+    "mitigation": "Use duplicate record theRecord to destinationGroup after resolving both objects.",
+    "signal_tier_impact": "authoritative"
+  },
+  {
+    "id": "rtfd_caveat",
+    "title": "Text-only RTFD creation may downgrade to RTF",
+    "affected_tools": ["devonthink-create-rtfd", "devonthink-update-rtfd"],
+    "operations": ["create", "content_update"],
+    "record_types": ["rtfd", "rtf"],
+    "applescript_commands": ["create record"],
+    "severity": "medium",
+    "mitigation": "Return actual_type and warn when DEVONthink creates an RTF record because no package attachment data was provided.",
+    "signal_tier_impact": "authoritative"
+  },
+  {
+    "id": "full_mode_in_loops",
+    "title": "Full link-analysis mode is too expensive for loops",
+    "affected_tools": ["devonthink-link-audit-record", "devonthink-link-audit-folder", "devonthink-link-map-neighborhood"],
+    "operations": ["link_analysis", "traverse"],
+    "record_types": ["any"],
+    "applescript_commands": ["plain text", "incoming references", "outgoing references"],
+    "severity": "low",
+    "mitigation": "Default to authoritative mode for batch traversal and reserve full mode for explicit content-derived signal requests.",
+    "signal_tier_impact": "inferred"
+  }
+]

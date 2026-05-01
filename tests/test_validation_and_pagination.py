@@ -119,7 +119,7 @@ def test_delete_command_uses_guarded_resolver() -> None:
 
 def test_close_command_uses_database_guarded_resolver() -> None:
     spec = _spec_by_tool("devonthink-close")
-    command = _build_command_call(spec, "0444C204-D8AD-4CC0-8A9A-9F6817C12896", {})
+    command = _build_command_call(spec, "00000000-0000-4000-8000-000000000001", {})
     assert "require_database_with_uuid" in command
 
 

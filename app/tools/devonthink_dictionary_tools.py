@@ -589,15 +589,15 @@ def _example_for_spec(spec: CommandSpec) -> str:
     if spec.tool_name == "devonthink-delete":
         return '{"parameters":{"record":"5038E0B0-2134-4CDA-B443-6558CE283BCC"}}'
     if spec.tool_name == "devonthink-move":
-        return '{"parameters":{"record":"5038E0B0-2134-4CDA-B443-6558CE283BCC","to":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}}'
+        return '{"parameters":{"record":"5038E0B0-2134-4CDA-B443-6558CE283BCC","to":"00000000-0000-4000-8000-000000000002"}}'
     if spec.tool_name == "devonthink-compress":
-        return '{"parameters":{"database":"0444C204-D8AD-4CC0-8A9A-9F6817C12896","to":"/tmp/inbox.zip"}}'
+        return '{"parameters":{"database":"00000000-0000-4000-8000-000000000001","to":"/tmp/inbox.zip"}}'
     if spec.tool_name == "devonthink-search":
-        return '{"direct":"tag:inbox","parameters":{"in":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}}'
+        return '{"direct":"tag:inbox","parameters":{"in":"00000000-0000-4000-8000-000000000002"}}'
     if spec.tool_name.startswith("devonthink-get-record"):
         return '{"direct":"5038E0B0-2134-4CDA-B443-6558CE283BCC"}'
     if spec.tool_name.startswith("devonthink-get-database"):
-        return '{"direct":"0444C204-D8AD-4CC0-8A9A-9F6817C12896"}'
+        return '{"direct":"00000000-0000-4000-8000-000000000001"}'
     if spec.tool_name == "devonthink-lookup-records-with-path":
         return '{"direct":"~/Documents/example.pdf"}'
     if spec.tool_name == "devonthink-create-database":
@@ -618,7 +618,7 @@ def _example_for_spec(spec: CommandSpec) -> str:
     if spec.direct_parameter and not spec.direct_parameter.optional:
         direct_name = spec.direct_parameter.name.lower()
         if "database" in direct_name:
-            direct = "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+            direct = "00000000-0000-4000-8000-000000000001"
         elif "url" in direct_name:
             direct = "https://example.com"
         elif "path" in direct_name:
@@ -632,7 +632,7 @@ def _example_for_spec(spec: CommandSpec) -> str:
         lower_name = p.name.lower()
         lower_desc = p.description.lower()
         if _looks_like_database_target(p.name, p.description, p.type_name):
-            params[p.name] = "0444C204-D8AD-4CC0-8A9A-9F6817C12896"
+            params[p.name] = "00000000-0000-4000-8000-000000000001"
         elif _looks_like_record_target(p.name, p.description):
             params[p.name] = "5038E0B0-2134-4CDA-B443-6558CE283BCC"
         elif "path" in lower_name or "posix" in lower_desc:

@@ -65,7 +65,7 @@ Test file: `tests/test_scholar_corpus.py`
   Mitigation: response includes `actual_type` and emits `rtfd_downgraded_to_rtf` when DEVONthink returns RTF.
 - [confirmed working] `create-annotation-note` works on PDFs, groups, smart groups, and annotation-note records.
   Replace guard verified: `replace_existing=false` fails clearly when a note exists; `replace_existing=true` updates the attached annotation pointer.
-- [live fixture] `MCP Chaos Lab 20260424-080344` (`3EFAAB4A-5BCD-4699-A472-1F66EF3C7882`) is retained as an edge-case stress fixture.
+- [live fixture] an edge-case stress fixture is retained locally and configured through `DEVONTHINK_TEST_CHAOS_GROUP_UUID`.
 
 ---
 

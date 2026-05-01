@@ -356,7 +356,7 @@ def richtext_tool_catalog_entries() -> list[dict[str, Any]]:
             use_when="you need reliable RTF creation and want to avoid DEVONthink's empty-RTF missing-value behavior.",
             safety_class="writes_content",
             prefer_when="creating RTF records because it passes rich text at creation time; generic create-record type=rtf can hit DEVONthink's missing-value bug.",
-            example='{"name":"Meeting Notes","content":"Attendees:\\n- Alice","parent_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            example='{"name":"Meeting Notes","content":"Attendees:\\n- Alice","parent_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             tier="canonical",
         ),
         _richtext_catalog_entry(
@@ -393,7 +393,7 @@ def richtext_tool_catalog_entries() -> list[dict[str, Any]]:
             safety_class="writes_content",
             prefer_when="plain text/rich text content is sufficient and binary attachments are not needed.",
             degradation_contract="Binary RTFD attachments are not constructable through this AppleScript-only tool; use AppKit/NSData for embedded assets.",
-            example='{"name":"Report","content":"Initial text","parent_group_uuid":"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B"}',
+            example='{"name":"Report","content":"Initial text","parent_group_uuid":"00000000-0000-4000-8000-000000000002"}',
             tier="advanced",
         ),
         _richtext_catalog_entry(

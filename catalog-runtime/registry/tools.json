@@ -217,7 +217,7 @@
   },
   {
     "name": "devonthink-apply-operation",
-    "description": "Apply a previously planned DEVONthink operation after confirmation and stale-plan checks. Use when: you have a plan_id and confirmation token from devonthink-plan-operation. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder operations. Safety: writes_metadata Prefer this when: you are ready to apply a staged reminder operation. Example: {\"plan_id\":\"plan_...\",\"confirmation_token\":\"...\"}",
+    "description": "Apply a previously planned DEVONthink operation after confirmation and stale-plan checks. Use when: you have a plan_id and confirmation token from devonthink-plan-operation. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder and record operations. Safety: writes_metadata Prefer this when: you are ready to apply a staged reminder operation. Example: {\"plan_id\":\"plan_...\",\"confirmation_token\":\"...\"}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -232,7 +232,7 @@
       "record_uuid"
     ],
     "preferred_identifier": "record_uuid",
-    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder operations.",
+    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder and record operations.",
     "safety_class": "writes_metadata",
     "supports_dry_run": false,
     "supports_plan": true,
@@ -432,7 +432,7 @@
   },
   {
     "name": "devonthink-check-file-integrity-of",
-    "description": "Run the native DEVONthink dictionary command 'check file integrity of' from DEVONthink Suite. Use when: Check file integrity of database. Identifiers: Accepts database UUIDs. Prefer database_uuid when you already have a stable locator. Safety: read_only Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\": {\"database\": \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}}",
+    "description": "Run the native DEVONthink dictionary command 'check file integrity of' from DEVONthink Suite. Use when: Check file integrity of database. Identifiers: Accepts database UUIDs. Prefer database_uuid when you already have a stable locator. Safety: read_only Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\": {\"database\": \"00000000-0000-4000-8000-000000000001\"}}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -461,7 +461,7 @@
     ],
     "prefer_when": "you need the exact DEVONthink dictionary command instead of a higher-level wrapper.",
     "degradation_contract": null,
-    "example": "{\"parameters\": {\"database\": \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}}",
+    "example": "{\"parameters\": {\"database\": \"00000000-0000-4000-8000-000000000001\"}}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -564,7 +564,7 @@
   },
   {
     "name": "devonthink-close-database",
-    "description": "Close an open DEVONthink database by UUID without deleting it. Use when: you need to cleanly close a database after batch automation. Identifiers: Accepts a database UUID returned by list-databases or get-database-by-uuid. Safety: writes_content Prefer this when: you are automating database lifecycle and want a non-UI close operation. Example: {\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Close an open DEVONthink database by UUID without deleting it. Use when: you need to cleanly close a database after batch automation. Identifiers: Accepts a database UUID returned by list-databases or get-database-by-uuid. Safety: writes_content Prefer this when: you are automating database lifecycle and want a non-UI close operation. Example: {\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -594,7 +594,7 @@
     ],
     "prefer_when": "you are automating database lifecycle and want a non-UI close operation.",
     "degradation_contract": null,
-    "example": "{\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "database",
@@ -649,7 +649,7 @@
   },
   {
     "name": "devonthink-compress",
-    "description": "Run the native DEVONthink dictionary command 'compress' from DEVONthink Suite. Use when: Compress a database into a Zip archive. Identifiers: Accepts record UUIDs, x-devonthink-item links, database UUIDs, POSIX paths, URLs. Prefer record_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\":{\"database\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\",\"to\":\"/tmp/inbox.zip\"}}",
+    "description": "Run the native DEVONthink dictionary command 'compress' from DEVONthink Suite. Use when: Compress a database into a Zip archive. Identifiers: Accepts record UUIDs, x-devonthink-item links, database UUIDs, POSIX paths, URLs. Prefer record_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\":{\"database\":\"00000000-0000-4000-8000-000000000001\",\"to\":\"/tmp/inbox.zip\"}}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -681,7 +681,7 @@
     ],
     "prefer_when": "you need the exact DEVONthink dictionary command instead of a higher-level wrapper.",
     "degradation_contract": null,
-    "example": "{\"parameters\":{\"database\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\",\"to\":\"/tmp/inbox.zip\"}}",
+    "example": "{\"parameters\":{\"database\":\"00000000-0000-4000-8000-000000000001\",\"to\":\"/tmp/inbox.zip\"}}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -1133,7 +1133,7 @@
   },
   {
     "name": "devonthink-create-record",
-    "description": "Create a DEVONthink record with validated record-type normalization and optional target group placement. Use when: you need simple non-query record creation without invoking the raw create-record-with dictionary command directly. Use devonthink-create-smart-group for saved searches, and use devonthink-create-rtf for RTF content because it works around DEVONthink's empty-RTF missing-value behavior. Identifiers: Accepts a record name, a normalized record type token or common alias, and an optional group UUID. Prefer a group UUID when the record must land in a specific folder. Safety: writes_content Prefer this when: you need a plain static record or group; prefer create-rtf for RTF records and create-smart-group for query-backed smart groups. Example: {\"name\":\"MCP Test Note\",\"record_type\":\"plain text\",\"group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Create a DEVONthink record with validated record-type normalization and optional target group placement. Use when: you need simple non-query record creation without invoking the raw create-record-with dictionary command directly. Use devonthink-create-smart-group for saved searches, and use devonthink-create-rtf for RTF content because it works around DEVONthink's empty-RTF missing-value behavior. Identifiers: Accepts a record name, a normalized record type token or common alias, and an optional group UUID. Prefer a group UUID when the record must land in a specific folder. Safety: writes_content Prefer this when: you need a plain static record or group; prefer create-rtf for RTF records and create-smart-group for query-backed smart groups. Example: {\"name\":\"MCP Test Note\",\"record_type\":\"plain text\",\"group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -1163,7 +1163,7 @@
     ],
     "prefer_when": "you need a plain static record or group; prefer create-rtf for RTF records and create-smart-group for query-backed smart groups.",
     "degradation_contract": null,
-    "example": "{\"name\":\"MCP Test Note\",\"record_type\":\"plain text\",\"group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"name\":\"MCP Test Note\",\"record_type\":\"plain text\",\"group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "specialized",
@@ -1222,7 +1222,7 @@
   },
   {
     "name": "devonthink-create-rtf",
-    "description": "Create an RTF record with initial rich text content. Use when: you need reliable RTF creation and want to avoid DEVONthink's empty-RTF missing-value behavior. Identifiers: Accepts a record UUID for read/update operations, or a parent group UUID for create operations. Safety: writes_content Prefer this when: creating RTF records because it passes rich text at creation time; generic create-record type=rtf can hit DEVONthink's missing-value bug. Example: {\"name\":\"Meeting Notes\",\"content\":\"Attendees:\\n- Alice\",\"parent_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Create an RTF record with initial rich text content. Use when: you need reliable RTF creation and want to avoid DEVONthink's empty-RTF missing-value behavior. Identifiers: Accepts a record UUID for read/update operations, or a parent group UUID for create operations. Safety: writes_content Prefer this when: creating RTF records because it passes rich text at creation time; generic create-record type=rtf can hit DEVONthink's missing-value bug. Example: {\"name\":\"Meeting Notes\",\"content\":\"Attendees:\\n- Alice\",\"parent_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -1253,7 +1253,7 @@
     ],
     "prefer_when": "creating RTF records because it passes rich text at creation time; generic create-record type=rtf can hit DEVONthink's missing-value bug.",
     "degradation_contract": null,
-    "example": "{\"name\":\"Meeting Notes\",\"content\":\"Attendees:\\n- Alice\",\"parent_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"name\":\"Meeting Notes\",\"content\":\"Attendees:\\n- Alice\",\"parent_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "rich-text",
@@ -1265,7 +1265,7 @@
   },
   {
     "name": "devonthink-create-rtfd",
-    "description": "Create an RTFD record with text content. Use when: you need an RTFD-style rich text record without embedded binary attachments. Identifiers: Accepts a record UUID for read/update operations, or a parent group UUID for create operations. Safety: writes_content Prefer this when: plain text/rich text content is sufficient and binary attachments are not needed. Degradation: Binary RTFD attachments are not constructable through this AppleScript-only tool; use AppKit/NSData for embedded assets. Example: {\"name\":\"Report\",\"content\":\"Initial text\",\"parent_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Create an RTFD record with text content. Use when: you need an RTFD-style rich text record without embedded binary attachments. Identifiers: Accepts a record UUID for read/update operations, or a parent group UUID for create operations. Safety: writes_content Prefer this when: plain text/rich text content is sufficient and binary attachments are not needed. Degradation: Binary RTFD attachments are not constructable through this AppleScript-only tool; use AppKit/NSData for embedded assets. Example: {\"name\":\"Report\",\"content\":\"Initial text\",\"parent_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -1296,7 +1296,7 @@
     ],
     "prefer_when": "plain text/rich text content is sufficient and binary attachments are not needed.",
     "degradation_contract": "Binary RTFD attachments are not constructable through this AppleScript-only tool; use AppKit/NSData for embedded assets.",
-    "example": "{\"name\":\"Report\",\"content\":\"Initial text\",\"parent_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"name\":\"Report\",\"content\":\"Initial text\",\"parent_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "rich-text",
@@ -1349,7 +1349,7 @@
   },
   {
     "name": "devonthink-create-smart-group",
-    "description": "Create a DEVONthink smart group with saved search predicates. Use when: you need a saved dynamic query group such as all PDF files rather than a static folder-like group. Identifiers: Accepts a parent group UUID, optional search group UUID, and DEVONthink search predicate string. Safety: writes_content Prefer this when: you need query-backed membership from search predicates; use devonthink-create-record type=group for a plain static group. Example: {\"name\":\"PDF Files\",\"search_predicates\":\"kind:PDF\",\"parent_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Create a DEVONthink smart group with saved search predicates. Use when: you need a saved dynamic query group such as all PDF files rather than a static folder-like group. Identifiers: Accepts a parent group UUID, optional search group UUID, and DEVONthink search predicate string. Safety: writes_content Prefer this when: you need query-backed membership from search predicates; use devonthink-create-record type=group for a plain static group. Example: {\"name\":\"PDF Files\",\"search_predicates\":\"kind:PDF\",\"parent_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -1379,7 +1379,7 @@
     ],
     "prefer_when": "you need query-backed membership from search predicates; use devonthink-create-record type=group for a plain static group.",
     "degradation_contract": null,
-    "example": "{\"name\":\"PDF Files\",\"search_predicates\":\"kind:PDF\",\"parent_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"name\":\"PDF Files\",\"search_predicates\":\"kind:PDF\",\"parent_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "smart-group",
@@ -2105,7 +2105,7 @@
   },
   {
     "name": "devonthink-duplicate-record",
-    "description": "Duplicate one DEVONthink record into a destination group and return the new record. Use when: you need an independent copy of a record in another group. Identifiers: Accepts a source record UUID and destination group UUID. Safety: writes_content Prefer this when: you want an independent duplicate; use replicate when copies should stay linked. Example: {\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"destination_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Duplicate one DEVONthink record into a destination group and return the new record. Use when: you need an independent copy of a record in another group. Identifiers: Accepts a source record UUID and destination group UUID. Safety: writes_content Prefer this when: you want an independent duplicate; use replicate when copies should stay linked. Example: {\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"destination_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -2136,7 +2136,7 @@
     ],
     "prefer_when": "you need a standalone copy and structured response metadata.",
     "degradation_contract": null,
-    "example": "{\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"destination_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"destination_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "specialized",
@@ -2861,7 +2861,7 @@
   },
   {
     "name": "devonthink-get-database-by-uuid",
-    "description": "Get one DEVONthink database by UUID and return structured metadata. Use when: you already know the database UUID and need its id, name, or path before scoping later operations. Identifiers: Accepts a database UUID. Prefer the database UUID over path lookups for stable automation. Safety: read_only Prefer this when: you need exact database identity; prefer devonthink-get-database-incoming-group or devonthink-search-records when your next step is folder-scoped retrieval. Example: {\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Get one DEVONthink database by UUID and return structured metadata. Use when: you already know the database UUID and need its id, name, or path before scoping later operations. Identifiers: Accepts a database UUID. Prefer the database UUID over path lookups for stable automation. Safety: read_only Prefer this when: you need exact database identity; prefer devonthink-get-database-incoming-group or devonthink-search-records when your next step is folder-scoped retrieval. Example: {\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -2891,7 +2891,7 @@
     ],
     "prefer_when": "you need exact database metadata rather than a search scope helper.",
     "degradation_contract": null,
-    "example": "{\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "specialized",
@@ -2902,7 +2902,7 @@
   },
   {
     "name": "devonthink-get-database-incoming-group",
-    "description": "Resolve a database UUID to its incoming group record so models can access the database root/Inbox scope directly. Use when: you need the concrete group record that DEVONthink uses as the default search/creation scope inside a database. Identifiers: Accepts a database UUID. Prefer the database UUID; this tool returns the incoming group UUID you can reuse in search, move, and traversal calls. Safety: read_only Prefer this when: you need explicit Inbox/root-group access; prefer devonthink-get-database-by-uuid when you only need database metadata. Example: {\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Resolve a database UUID to its incoming group record so models can access the database root/Inbox scope directly. Use when: you need the concrete group record that DEVONthink uses as the default search/creation scope inside a database. Identifiers: Accepts a database UUID. Prefer the database UUID; this tool returns the incoming group UUID you can reuse in search, move, and traversal calls. Safety: read_only Prefer this when: you need explicit Inbox/root-group access; prefer devonthink-get-database-by-uuid when you only need database metadata. Example: {\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -2932,7 +2932,7 @@
     ],
     "prefer_when": "you need the actual searchable/writable group scope behind a database UUID.",
     "degradation_contract": null,
-    "example": "{\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "specialized",
@@ -2944,7 +2944,7 @@
   },
   {
     "name": "devonthink-get-database-with-id",
-    "description": "Run the native DEVONthink dictionary command 'get database with id' from DEVONthink Suite. Use when: Get database with the specified id. Identifiers: Use exact dictionary parameter names. This command mainly takes plain strings, numbers, booleans, or lists rather than DEVONthink UUID references. Safety: read_only Prefer this when: you already know the database UUID or scripting id; prefer scoped search wrappers for content retrieval. Example: {\"direct\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Run the native DEVONthink dictionary command 'get database with id' from DEVONthink Suite. Use when: Get database with the specified id. Identifiers: Use exact dictionary parameter names. This command mainly takes plain strings, numbers, booleans, or lists rather than DEVONthink UUID references. Safety: read_only Prefer this when: you already know the database UUID or scripting id; prefer scoped search wrappers for content retrieval. Example: {\"direct\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -2971,7 +2971,7 @@
     ],
     "prefer_when": "you already know the database UUID or scripting id; prefer scoped search wrappers for content retrieval.",
     "degradation_contract": null,
-    "example": "{\"direct\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"direct\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -2985,7 +2985,7 @@
   },
   {
     "name": "devonthink-get-database-with-uuid",
-    "description": "Run the native DEVONthink dictionary command 'get database with uuid' from DEVONthink Suite. Use when: Get database with the specified uuid. Identifiers: Use exact dictionary parameter names. This command mainly takes plain strings, numbers, booleans, or lists rather than DEVONthink UUID references. Safety: read_only Prefer this when: you already know the database UUID or scripting id; prefer scoped search wrappers for content retrieval. Example: {\"direct\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Run the native DEVONthink dictionary command 'get database with uuid' from DEVONthink Suite. Use when: Get database with the specified uuid. Identifiers: Use exact dictionary parameter names. This command mainly takes plain strings, numbers, booleans, or lists rather than DEVONthink UUID references. Safety: read_only Prefer this when: you already know the database UUID or scripting id; prefer scoped search wrappers for content retrieval. Example: {\"direct\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -3012,7 +3012,7 @@
     ],
     "prefer_when": "you already know the database UUID or scripting id; prefer scoped search wrappers for content retrieval.",
     "degradation_contract": null,
-    "example": "{\"direct\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"direct\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -3459,7 +3459,7 @@
   },
   {
     "name": "devonthink-get-record-by-uuid",
-    "description": "Get one DEVONthink record by UUID and return structured metadata. Use when: you already have a stable record identifier and need to inspect the record before follow-up actions. Identifiers: Accepts a record UUID, optionally with a database UUID for scoping. Prefer the record UUID over title/path lookups. Safety: read_only Prefer this when: you need exact record lookup; prefer devonthink-search-records when you only have query text or metadata clues. Example: {\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Get one DEVONthink record by UUID and return structured metadata. Use when: you already have a stable record identifier and need to inspect the record before follow-up actions. Identifiers: Accepts a record UUID, optionally with a database UUID for scoping. Prefer the record UUID over title/path lookups. Safety: read_only Prefer this when: you need exact record lookup; prefer devonthink-search-records when you only have query text or metadata clues. Example: {\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -4105,6 +4105,46 @@
     ]
   },
   {
+    "name": "devonthink-inspect-quirks",
+    "description": "Inspect curated DEVONthink AppleScript compatibility quirks as structured data. Use when: you need to understand known AppleScript pitfalls before choosing or applying a DEVONthink tool. Identifiers: Accepts optional filters for tool name, operation, record type, AppleScript command, and severity. Safety: read_only Prefer this when: you want machine-readable compatibility guidance rather than README prose. Example: {\"tool\":\"devonthink-search-records\",\"severity\":\"high\"}",
+    "group": "devonthink.native",
+    "tier": "canonical",
+    "status": "active",
+    "canonical_tool": "devonthink-inspect-quirks",
+    "overlap_family": "devonthink-quirks",
+    "source_path": "app/tools/devonthink_quirks_tools.py",
+    "catalog_path": "catalog-runtime/tools/devonthink.native/canonical/devonthink-inspect-quirks.json",
+    "executable": "python",
+    "priority": 100,
+    "default_exposed": true,
+    "accepted_identifiers": [],
+    "preferred_identifier": null,
+    "identifier_guidance": "Accepts optional filters for tool name, operation, record type, AppleScript command, and severity.",
+    "safety_class": "read_only",
+    "supports_dry_run": true,
+    "supports_plan": false,
+    "supports_verify": false,
+    "requires_confirmation": false,
+    "mutation_scope": "none",
+    "signal_tier": "authoritative",
+    "profile_availability": [
+      "minimal",
+      "canonical",
+      "full"
+    ],
+    "prefer_when": "you need AppleScript quirk guidance before tool selection or fallback scripting.",
+    "degradation_contract": null,
+    "example": "{\"tool\":\"devonthink-search-records\",\"severity\":\"high\"}",
+    "tags": [
+      "devonthink",
+      "quirks",
+      "applescript",
+      "compatibility"
+    ],
+    "input_schema": {},
+    "invocation_pitfalls": []
+  },
+  {
     "name": "devonthink-italicize",
     "description": "Run the native DEVONthink dictionary command 'italicize' from Extended Text Suite. Use when: Italicize some text Identifiers: Accepts record UUIDs, x-devonthink-item links. Prefer record_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"direct\": \"5038E0B0-2134-4CDA-B443-6558CE283BCC\"}",
     "group": "devonthink.native",
@@ -4149,7 +4189,7 @@
   },
   {
     "name": "devonthink-link-audit-folder",
-    "description": "Audit a folder or group for child-record link quality, weakly connected notes, and tag clusters. Use when: you need a read-only health review across one folder before maintenance or curation work. This tool uses the fast authoritative bulk-edge path by default and is the right choice when you would otherwise run audit-record in a loop. Identifiers: Accepts a group UUID. Prefer a real group UUID; use the database incoming-group helper first if you start from a database UUID. Safety: read_only Prefer this when: you need aggregate folder-level diagnostics; prefer traverse-folder for recursive graph export and snapshots. Degradation: Uses authoritative bulk edge snapshots and does not content-scan child notes by default. If a future full/content-scan path is needed, treat it as slower and unsuitable for loops or large folders. Example: {\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":50}",
+    "description": "Audit a folder or group for child-record link quality, weakly connected notes, and tag clusters. Use when: you need a read-only health review across one folder before maintenance or curation work. This tool uses the fast authoritative bulk-edge path by default and is the right choice when you would otherwise run audit-record in a loop. Identifiers: Accepts a group UUID. Prefer a real group UUID; use the database incoming-group helper first if you start from a database UUID. Safety: read_only Prefer this when: you need aggregate folder-level diagnostics; prefer traverse-folder for recursive graph export and snapshots. Degradation: Uses authoritative bulk edge snapshots and does not content-scan child notes by default. If a future full/content-scan path is needed, treat it as slower and unsuitable for loops or large folders. Example: {\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":50}",
     "group": "devonthink.link-intelligence",
     "tier": "canonical",
     "status": "active",
@@ -4180,7 +4220,7 @@
     ],
     "prefer_when": "you need aggregate folder-level diagnostics; prefer traverse-folder for recursive graph export and snapshots.",
     "degradation_contract": "Uses authoritative bulk edge snapshots and does not content-scan child notes by default. If a future full/content-scan path is needed, treat it as slower and unsuitable for loops or large folders.",
-    "example": "{\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":50}",
+    "example": "{\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":50}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4233,7 +4273,7 @@
   },
   {
     "name": "devonthink-link-build-hub",
-    "description": "Create or update a markdown hub note in a target group from seed records. Use when: you want an act-layer summary note built from existing notes and links. Identifiers: Accepts a target group UUID and a list of seed record UUIDs or item links. Prefer UUIDs for both. Safety: writes_content Prefer this when: you want a curated hub note; prefer audit or suggest tools when you are still exploring candidates. Example: {\"group_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"seed_record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"hub_name\":\"Link Hub\",\"mode\":\"overview\"}",
+    "description": "Create or update a markdown hub note in a target group from seed records. Use when: you want an act-layer summary note built from existing notes and links. Identifiers: Accepts a target group UUID and a list of seed record UUIDs or item links. Prefer UUIDs for both. Safety: writes_content Prefer this when: you want a curated hub note; prefer audit or suggest tools when you are still exploring candidates. Example: {\"group_ref\":\"00000000-0000-4000-8000-000000000002\",\"seed_record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"hub_name\":\"Link Hub\",\"mode\":\"overview\"}",
     "group": "devonthink.link-intelligence",
     "tier": "advanced",
     "status": "active",
@@ -4252,9 +4292,9 @@
     "preferred_identifier": "record_uuid",
     "identifier_guidance": "Accepts a target group UUID and a list of seed record UUIDs or item links. Prefer UUIDs for both.",
     "safety_class": "writes_content",
-    "supports_dry_run": false,
-    "supports_plan": false,
-    "supports_verify": false,
+    "supports_dry_run": true,
+    "supports_plan": true,
+    "supports_verify": true,
     "requires_confirmation": true,
     "mutation_scope": "single_record",
     "signal_tier": "authoritative",
@@ -4263,7 +4303,7 @@
     ],
     "prefer_when": "you want a curated hub note; prefer audit or suggest tools when you are still exploring candidates.",
     "degradation_contract": null,
-    "example": "{\"group_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"seed_record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"hub_name\":\"Link Hub\",\"mode\":\"overview\"}",
+    "example": "{\"group_ref\":\"00000000-0000-4000-8000-000000000002\",\"seed_record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"hub_name\":\"Link Hub\",\"mode\":\"overview\"}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4274,7 +4314,7 @@
   },
   {
     "name": "devonthink-link-check-reciprocal",
-    "description": "Validate whether a source and target record agree on a reciprocal relationship. Use when: you need to verify one pair before editing links or asserting graph consistency. Identifiers: Accepts source and target record UUIDs or x-devonthink-item links. Prefer UUIDs. Safety: read_only Prefer this when: you need one pairwise consistency check; prefer map-neighborhood for broader context. Degradation: If authoritative incoming/outgoing properties are unavailable, the tool reports degraded reasoning instead of silently failing. Example: {\"source_ref\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"target_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Validate whether a source and target record agree on a reciprocal relationship. Use when: you need to verify one pair before editing links or asserting graph consistency. Identifiers: Accepts source and target record UUIDs or x-devonthink-item links. Prefer UUIDs. Safety: read_only Prefer this when: you need one pairwise consistency check; prefer map-neighborhood for broader context. Degradation: If authoritative incoming/outgoing properties are unavailable, the tool reports degraded reasoning instead of silently failing. Example: {\"source_ref\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"target_ref\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.link-intelligence",
     "tier": "canonical",
     "status": "active",
@@ -4305,7 +4345,7 @@
     ],
     "prefer_when": "you need one pairwise consistency check; prefer map-neighborhood for broader context.",
     "degradation_contract": "If authoritative incoming/outgoing properties are unavailable, the tool reports degraded reasoning instead of silently failing.",
-    "example": "{\"source_ref\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"target_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"source_ref\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"target_ref\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4316,7 +4356,7 @@
   },
   {
     "name": "devonthink-link-compare-snapshots",
-    "description": "Compare two traversal snapshots and report node, edge, and health deltas. Use when: you need a before/after view of graph changes rather than a fresh traversal alone. Identifiers: Accepts explicit snapshot paths or a folder UUID for auto-discovery. Prefer explicit paths when reproducibility matters. Safety: read_only Prefer this when: you already have snapshots and want delta analysis; prefer traverse-folder to create or refresh baselines. Example: {\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"snapshot_dir\":\"snapshots\"}",
+    "description": "Compare two traversal snapshots and report node, edge, and health deltas. Use when: you need a before/after view of graph changes rather than a fresh traversal alone. Identifiers: Accepts explicit snapshot paths or a folder UUID for auto-discovery. Prefer explicit paths when reproducibility matters. Safety: read_only Prefer this when: you already have snapshots and want delta analysis; prefer traverse-folder to create or refresh baselines. Example: {\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"snapshot_dir\":\"snapshots\"}",
     "group": "devonthink.link-intelligence",
     "tier": "advanced",
     "status": "active",
@@ -4337,7 +4377,7 @@
     "safety_class": "read_only",
     "supports_dry_run": false,
     "supports_plan": false,
-    "supports_verify": false,
+    "supports_verify": true,
     "requires_confirmation": false,
     "mutation_scope": "none",
     "signal_tier": "authoritative",
@@ -4346,7 +4386,7 @@
     ],
     "prefer_when": "you already have snapshots and want delta analysis; prefer traverse-folder to create or refresh baselines.",
     "degradation_contract": null,
-    "example": "{\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"snapshot_dir\":\"snapshots\"}",
+    "example": "{\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"snapshot_dir\":\"snapshots\"}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4357,7 +4397,7 @@
   },
   {
     "name": "devonthink-link-detect-bridges",
-    "description": "Detect bridge notes that connect multiple topical clusters inside a folder. Use when: you want to identify cross-topic notes for hub planning or structural cleanup. Identifiers: Accepts a group UUID. Prefer a concrete group UUID. Safety: read_only Prefer this when: you specifically need bridge-note detection rather than general audit output. Degradation: If some cluster signals degrade, the tool still returns bridge candidates and records degraded signal counts in observability stats. Example: {\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":80}",
+    "description": "Detect bridge notes that connect multiple topical clusters inside a folder. Use when: you want to identify cross-topic notes for hub planning or structural cleanup. Identifiers: Accepts a group UUID. Prefer a concrete group UUID. Safety: read_only Prefer this when: you specifically need bridge-note detection rather than general audit output. Degradation: If some cluster signals degrade, the tool still returns bridge candidates and records degraded signal counts in observability stats. Example: {\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":80}",
     "group": "devonthink.link-intelligence",
     "tier": "canonical",
     "status": "active",
@@ -4388,7 +4428,7 @@
     ],
     "prefer_when": "you specifically need bridge-note detection rather than general audit output.",
     "degradation_contract": "If some cluster signals degrade, the tool still returns bridge candidates and records degraded signal counts in observability stats.",
-    "example": "{\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":80}",
+    "example": "{\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":80}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4418,9 +4458,9 @@
     "preferred_identifier": "record_uuid",
     "identifier_guidance": "Accepts a record UUID or x-devonthink-item link. Prefer the record UUID.",
     "safety_class": "writes_content",
-    "supports_dry_run": false,
-    "supports_plan": false,
-    "supports_verify": false,
+    "supports_dry_run": true,
+    "supports_plan": true,
+    "supports_verify": true,
     "requires_confirmation": true,
     "mutation_scope": "single_record",
     "signal_tier": "authoritative",
@@ -4440,7 +4480,7 @@
   },
   {
     "name": "devonthink-link-find-orphans",
-    "description": "Find orphan and near-orphan records in one folder using authoritative and weaker connectivity signals. Use when: you need to identify weakly connected notes for review or curation. Identifiers: Accepts a group UUID. Prefer a concrete group UUID. Safety: read_only Prefer this when: you specifically care about weak connectivity; prefer audit-folder for a broader quality report. Degradation: Returns observability.warnings when some records require degraded text-based link discovery instead of native link properties. Example: {\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":100}",
+    "description": "Find orphan and near-orphan records in one folder using authoritative and weaker connectivity signals. Use when: you need to identify weakly connected notes for review or curation. Identifiers: Accepts a group UUID. Prefer a concrete group UUID. Safety: read_only Prefer this when: you specifically care about weak connectivity; prefer audit-folder for a broader quality report. Degradation: Returns observability.warnings when some records require degraded text-based link discovery instead of native link properties. Example: {\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":100}",
     "group": "devonthink.link-intelligence",
     "tier": "canonical",
     "status": "active",
@@ -4471,7 +4511,7 @@
     ],
     "prefer_when": "you specifically care about weak connectivity; prefer audit-folder for a broader quality report.",
     "degradation_contract": "Returns observability.warnings when some records require degraded text-based link discovery instead of native link properties.",
-    "example": "{\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":100}",
+    "example": "{\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":100}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4482,7 +4522,7 @@
   },
   {
     "name": "devonthink-link-maintenance-pass",
-    "description": "Run a folder-level maintenance pass against the latest snapshot baseline and return deltas plus optional actions. Use when: you need recurring graph-health maintenance rather than one-off inspection. Identifiers: Accepts a folder or group UUID. Prefer a group UUID and an explicit snapshot_dir when you manage multiple baselines. Safety: writes_content Prefer this when: you need scheduled or repeatable folder maintenance with deltas; prefer audit-folder for one-shot inspection. Degradation: Mode=report is read-only. If no baseline exists, the tool captures one and reports first_run instead of throwing. Example: {\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"mode\":\"report\",\"limit\":50,\"snapshot_dir\":\"snapshots\"}",
+    "description": "Run a folder-level maintenance pass against the latest snapshot baseline and return deltas plus optional actions. Use when: you need recurring graph-health maintenance rather than one-off inspection. Identifiers: Accepts a folder or group UUID. Prefer a group UUID and an explicit snapshot_dir when you manage multiple baselines. Safety: writes_content Prefer this when: you need scheduled or repeatable folder maintenance with deltas; prefer audit-folder for one-shot inspection. Degradation: Mode=report is read-only. If no baseline exists, the tool captures one and reports first_run instead of throwing. Example: {\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"mode\":\"report\",\"limit\":50,\"snapshot_dir\":\"snapshots\"}",
     "group": "devonthink.link-intelligence",
     "tier": "advanced",
     "status": "active",
@@ -4501,9 +4541,9 @@
     "preferred_identifier": "group_uuid",
     "identifier_guidance": "Accepts a folder or group UUID. Prefer a group UUID and an explicit snapshot_dir when you manage multiple baselines.",
     "safety_class": "writes_content",
-    "supports_dry_run": false,
-    "supports_plan": false,
-    "supports_verify": false,
+    "supports_dry_run": true,
+    "supports_plan": true,
+    "supports_verify": true,
     "requires_confirmation": true,
     "mutation_scope": "single_record",
     "signal_tier": "authoritative",
@@ -4512,7 +4552,7 @@
     ],
     "prefer_when": "you need scheduled or repeatable folder maintenance with deltas; prefer audit-folder for one-shot inspection.",
     "degradation_contract": "Mode=report is read-only. If no baseline exists, the tool captures one and reports first_run instead of throwing.",
-    "example": "{\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"mode\":\"report\",\"limit\":50,\"snapshot_dir\":\"snapshots\"}",
+    "example": "{\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"mode\":\"report\",\"limit\":50,\"snapshot_dir\":\"snapshots\"}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4584,7 +4624,7 @@
     "preferred_identifier": null,
     "identifier_guidance": "Accepts filesystem paths and retention settings rather than DEVONthink UUIDs. Prefer report mode first.",
     "safety_class": "destructive",
-    "supports_dry_run": false,
+    "supports_dry_run": true,
     "supports_plan": false,
     "supports_verify": false,
     "requires_confirmation": true,
@@ -4625,9 +4665,9 @@
     "preferred_identifier": "record_uuid",
     "identifier_guidance": "Accepts a record UUID or x-devonthink-item link. Prefer the record UUID.",
     "safety_class": "writes_content",
-    "supports_dry_run": false,
-    "supports_plan": false,
-    "supports_verify": false,
+    "supports_dry_run": true,
+    "supports_plan": true,
+    "supports_verify": true,
     "requires_confirmation": true,
     "mutation_scope": "single_record",
     "signal_tier": "authoritative",
@@ -4689,7 +4729,7 @@
   },
   {
     "name": "devonthink-link-score",
-    "description": "Score connectivity for one or more records and return score components plus risk flags. Use when: you already have a candidate set and want to compare how strongly connected it is. Identifiers: Accepts a list of record UUIDs or x-devonthink-item links. Prefer UUIDs for stable scoring input. Safety: read_only Prefer this when: you need scored comparisons, not open-ended candidate discovery. Degradation: If some signal sources are unavailable, the score still returns with signal-tier annotations and observability warnings. Example: {\"record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"]}",
+    "description": "Score connectivity for one or more records and return score components plus risk flags. Use when: you already have a candidate set and want to compare how strongly connected it is. Identifiers: Accepts a list of record UUIDs or x-devonthink-item links. Prefer UUIDs for stable scoring input. Safety: read_only Prefer this when: you need scored comparisons, not open-ended candidate discovery. Degradation: If some signal sources are unavailable, the score still returns with signal-tier annotations and observability warnings. Example: {\"record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"00000000-0000-4000-8000-000000000002\"]}",
     "group": "devonthink.link-intelligence",
     "tier": "canonical",
     "status": "active",
@@ -4720,7 +4760,7 @@
     ],
     "prefer_when": "you need scored comparisons, not open-ended candidate discovery.",
     "degradation_contract": "If some signal sources are unavailable, the score still returns with signal-tier annotations and observability warnings.",
-    "example": "{\"record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"]}",
+    "example": "{\"record_refs\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"00000000-0000-4000-8000-000000000002\"]}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4773,7 +4813,7 @@
   },
   {
     "name": "devonthink-link-traverse-folder",
-    "description": "Traverse folder records into node-first adjacency output with pagination, deduplication, and optional snapshots. Use when: you need hierarchy and graph traversal, snapshot baselines, or recursive folder inspection. Identifiers: Accepts a folder or group UUID. Prefer a concrete group UUID; use the incoming-group helper first when starting from a database UUID. Safety: read_only Prefer this when: you need recursive traversal or snapshot export; prefer list-group-children for direct child listing only. Degradation: Smart groups are handled as saved-query virtual membership and search degradations are reported in observability warnings/stats instead of throwing. Example: {\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":200,\"mode\":\"recursive\",\"max_depth\":2,\"write_snapshot\":true}",
+    "description": "Traverse folder records into node-first adjacency output with pagination, deduplication, and optional snapshots. Use when: you need hierarchy and graph traversal, snapshot baselines, or recursive folder inspection. Identifiers: Accepts a folder or group UUID. Prefer a concrete group UUID; use the incoming-group helper first when starting from a database UUID. Safety: read_only Prefer this when: you need recursive traversal or snapshot export; prefer list-group-children for direct child listing only. Degradation: Smart groups are handled as saved-query virtual membership and search degradations are reported in observability warnings/stats instead of throwing. Example: {\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":200,\"mode\":\"recursive\",\"max_depth\":2,\"write_snapshot\":true}",
     "group": "devonthink.link-intelligence",
     "tier": "advanced",
     "status": "active",
@@ -4803,7 +4843,7 @@
     ],
     "prefer_when": "you need recursive traversal or snapshot export; prefer list-group-children for direct child listing only.",
     "degradation_contract": "Smart groups are handled as saved-query virtual membership and search degradations are reported in observability warnings/stats instead of throwing.",
-    "example": "{\"folder_ref\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":200,\"mode\":\"recursive\",\"max_depth\":2,\"write_snapshot\":true}",
+    "example": "{\"folder_ref\":\"00000000-0000-4000-8000-000000000002\",\"limit\":200,\"mode\":\"recursive\",\"max_depth\":2,\"write_snapshot\":true}",
     "tags": [
       "devonthink",
       "link-intelligence",
@@ -4853,7 +4893,7 @@
   },
   {
     "name": "devonthink-list-group-children",
-    "description": "List the direct children of a DEVONthink group as structured record objects. Use when: you need to inspect folder hierarchy or enumerate a group's immediate contents without running the heavier graph traversal tools. Identifiers: Accepts a group UUID and optional limit. Prefer a group UUID returned by search, incoming-group lookup, or traversal tools. Safety: read_only Prefer this when: you need direct child listing only; prefer devonthink-link-traverse-folder for recursive graph traversal, snapshots, or smart-group handling. Example: {\"group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":25}",
+    "description": "List the direct children of a DEVONthink group as structured record objects. Use when: you need to inspect folder hierarchy or enumerate a group's immediate contents without running the heavier graph traversal tools. Identifiers: Accepts a group UUID and optional limit. Prefer a group UUID returned by search, incoming-group lookup, or traversal tools. Safety: read_only Prefer this when: you need direct child listing only; prefer devonthink-link-traverse-folder for recursive graph traversal, snapshots, or smart-group handling. Example: {\"group_uuid\":\"00000000-0000-4000-8000-000000000002\",\"limit\":25}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -4883,7 +4923,7 @@
     ],
     "prefer_when": "you need only the immediate folder children and not a recursive graph walk.",
     "degradation_contract": null,
-    "example": "{\"group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\",\"limit\":25}",
+    "example": "{\"group_uuid\":\"00000000-0000-4000-8000-000000000002\",\"limit\":25}",
     "tags": [
       "devonthink",
       "specialized",
@@ -5453,7 +5493,50 @@
   },
   {
     "name": "devonthink-move",
-    "description": "Run the native DEVONthink dictionary command 'move' from DEVONthink Suite. Use when: Move all instances of a record to a different group.  Specify the 'from' group to move a single instance to a different group. Identifiers: Accepts record UUIDs, x-devonthink-item links, group UUIDs. Prefer record_uuid when you already have a stable locator. Safety: moves_records Prefer this when: you need to relocate an existing DEVONthink record between groups; use move-into-database only when crossing from external/imported state. Example: {\"parameters\":{\"record\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"to\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}}",
+    "description": "Move one DEVONthink record into a destination group. Use when: you need to relocate a record after planning or verifying the target group. Identifiers: Accepts a source record UUID and destination group UUID. Safety: moves_records Prefer this when: you need a direct move; use devonthink-plan-operation with Record.Move when stale-plan protection is required. Example: {\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"destination_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
+    "group": "devonthink.native",
+    "tier": "canonical",
+    "status": "active",
+    "canonical_tool": "devonthink-move",
+    "overlap_family": "devonthink-move",
+    "source_path": "app/tools/devonthink_tools.py",
+    "catalog_path": "catalog-runtime/tools/devonthink.native/canonical/devonthink-move.json",
+    "executable": "osascript",
+    "priority": 100,
+    "default_exposed": true,
+    "accepted_identifiers": [
+      "record_uuid",
+      "group_uuid"
+    ],
+    "preferred_identifier": "record_uuid",
+    "identifier_guidance": "Accepts a source record UUID and destination group UUID.",
+    "safety_class": "moves_records",
+    "supports_dry_run": false,
+    "supports_plan": true,
+    "supports_verify": true,
+    "requires_confirmation": true,
+    "mutation_scope": "single_record",
+    "signal_tier": "authoritative",
+    "profile_availability": [
+      "minimal",
+      "canonical",
+      "full"
+    ],
+    "prefer_when": "you need a direct move; use lifecycle planning for confirmation-gated moves.",
+    "degradation_contract": null,
+    "example": "{\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"destination_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
+    "tags": [
+      "devonthink",
+      "specialized",
+      "move",
+      "record"
+    ],
+    "input_schema": {},
+    "invocation_pitfalls": []
+  },
+  {
+    "name": "devonthink-move",
+    "description": "Run the native DEVONthink dictionary command 'move' from DEVONthink Suite. Use when: Move all instances of a record to a different group.  Specify the 'from' group to move a single instance to a different group. Identifiers: Accepts record UUIDs, x-devonthink-item links, group UUIDs. Prefer record_uuid when you already have a stable locator. Safety: moves_records Prefer this when: you need to relocate an existing DEVONthink record between groups; use move-into-database only when crossing from external/imported state. Example: {\"parameters\":{\"record\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"to\":\"00000000-0000-4000-8000-000000000002\"}}",
     "group": "devonthink.native",
     "tier": "internal",
     "status": "active",
@@ -5483,7 +5566,7 @@
     ],
     "prefer_when": "you need to relocate an existing DEVONthink record between groups; use move-into-database only when crossing from external/imported state.",
     "degradation_contract": null,
-    "example": "{\"parameters\":{\"record\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"to\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}}",
+    "example": "{\"parameters\":{\"record\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"to\":\"00000000-0000-4000-8000-000000000002\"}}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -5801,7 +5884,7 @@
   },
   {
     "name": "devonthink-optimize",
-    "description": "Run the native DEVONthink dictionary command 'optimize' from DEVONthink Suite. Use when: Backup & optimize a database. Identifiers: Accepts database UUIDs. Prefer database_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\": {\"database\": \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}}",
+    "description": "Run the native DEVONthink dictionary command 'optimize' from DEVONthink Suite. Use when: Backup & optimize a database. Identifiers: Accepts database UUIDs. Prefer database_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\": {\"database\": \"00000000-0000-4000-8000-000000000001\"}}",
     "group": "devonthink.native",
     "tier": "internal",
     "status": "active",
@@ -5829,7 +5912,7 @@
     ],
     "prefer_when": "you need the exact DEVONthink dictionary command instead of a higher-level wrapper.",
     "degradation_contract": null,
-    "example": "{\"parameters\": {\"database\": \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}}",
+    "example": "{\"parameters\": {\"database\": \"00000000-0000-4000-8000-000000000001\"}}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -5973,7 +6056,7 @@
   },
   {
     "name": "devonthink-plan-operation",
-    "description": "Plan a supported DEVONthink operation and return before/after state plus a confirmation token. Use when: you need to stage a Reminder.Update or Reminder.Delete operation before applying it. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder operations. Safety: writes_metadata Prefer this when: you want stale-target protection before changing a reminder. Example: {\"operation\":{\"kind\":\"Reminder.Update\",\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"reminder_id\":\"1\",\"due_date\":\"2026-05-01T09:00:00\",\"alarm\":\"notification\"}}",
+    "description": "Plan a supported DEVONthink operation and return before/after state plus a confirmation token. Use when: you need to stage a Reminder.Update, Reminder.Delete, Record.MetadataUpdate, or Record.Move operation before applying it. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder and record operations. Safety: writes_metadata Prefer this when: you want stale-target protection before changing a reminder or record. Example: {\"operation\":{\"kind\":\"Reminder.Update\",\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"reminder_id\":\"1\",\"due_date\":\"2026-05-01T09:00:00\",\"alarm\":\"notification\"}}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -5988,7 +6071,7 @@
       "record_uuid"
     ],
     "preferred_identifier": "record_uuid",
-    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder operations.",
+    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder and record operations.",
     "safety_class": "writes_metadata",
     "supports_dry_run": false,
     "supports_plan": true,
@@ -6690,7 +6773,7 @@
   },
   {
     "name": "devonthink-search",
-    "description": "Run the native DEVONthink dictionary command 'search' from DEVONthink Suite. Use when: Search for records in specified group or all databases. Identifiers: Accepts record UUIDs, x-devonthink-item links, group UUIDs. Prefer record_uuid when you already have a stable locator. Prefer a group UUID for the `in` parameter; passing a database UUID directly can be invalid in DEVONthink. Safety: read_only Prefer this when: you need the native DEVONthink search command exactly; prefer devonthink-search-records for structured record output and safer database scoping. Degradation: This raw command mirrors DEVONthink directly and may fail on unsupported database-object scoping instead of degrading. Prefer devonthink-search-records when you want automatic database-UUID to incoming-group resolution. Example: {\"direct\":\"tag:inbox\",\"parameters\":{\"in\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}}",
+    "description": "Run the native DEVONthink dictionary command 'search' from DEVONthink Suite. Use when: Search for records in specified group or all databases. Identifiers: Accepts record UUIDs, x-devonthink-item links, group UUIDs. Prefer record_uuid when you already have a stable locator. Prefer a group UUID for the `in` parameter; passing a database UUID directly can be invalid in DEVONthink. Safety: read_only Prefer this when: you need the native DEVONthink search command exactly; prefer devonthink-search-records for structured record output and safer database scoping. Degradation: This raw command mirrors DEVONthink directly and may fail on unsupported database-object scoping instead of degrading. Prefer devonthink-search-records when you want automatic database-UUID to incoming-group resolution. Example: {\"direct\":\"tag:inbox\",\"parameters\":{\"in\":\"00000000-0000-4000-8000-000000000002\"}}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -6721,7 +6804,7 @@
     ],
     "prefer_when": "you need the native DEVONthink search command exactly; prefer devonthink-search-records for structured record output and safer database scoping.",
     "degradation_contract": "This raw command mirrors DEVONthink directly and may fail on unsupported database-object scoping instead of degrading. Prefer devonthink-search-records when you want automatic database-UUID to incoming-group resolution.",
-    "example": "{\"direct\":\"tag:inbox\",\"parameters\":{\"in\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}}",
+    "example": "{\"direct\":\"tag:inbox\",\"parameters\":{\"in\":\"00000000-0000-4000-8000-000000000002\"}}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -6735,7 +6818,7 @@
   },
   {
     "name": "devonthink-search-media-records",
-    "description": "Find DEVONthink audio/video records using the native multimedia record type and return file metadata. Use when: you need actual media files and DEVONthink kind:Movie/kind:Audio search is returning documents or other false positives. Identifiers: Accepts media_kind video, audio, multimedia, or any; optional database UUID scope; and a limit. Safety: read_only Prefer this when: you are looking for real .mp4/.mov/.mkv/.mp3/etc. records and need duration, size, path, MIME type, and record type metadata. Degradation: Uses record type=multimedia rather than localized kind metadata. For media_kind=video/audio it scans up to 200 multimedia records then filters by MIME type, extension, and multimedia kind hints. Example: {\"media_kind\":\"video\",\"limit\":25,\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Find DEVONthink audio/video records using the native multimedia record type and return file metadata. Use when: you need actual media files and DEVONthink kind:Movie/kind:Audio search is returning documents or other false positives. Identifiers: Accepts media_kind video, audio, multimedia, or any; optional database UUID scope; and a limit. Safety: read_only Prefer this when: you are looking for real .mp4/.mov/.mkv/.mp3/etc. records and need duration, size, path, MIME type, and record type metadata. Degradation: Uses record type=multimedia rather than localized kind metadata. For media_kind=video/audio it scans up to 200 multimedia records then filters by MIME type, extension, and multimedia kind hints. Example: {\"media_kind\":\"video\",\"limit\":25,\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -6782,7 +6865,7 @@
   },
   {
     "name": "devonthink-search-records",
-    "description": "Search DEVONthink records and return structured record objects rather than raw AppleScript results. Use when: you need query-driven lookup with safer scoping than the raw dictionary search command. Identifiers: Accepts a query string plus an optional group UUID or database UUID in database_uuid. Prefer a group UUID for exact folder scope; when you pass a database UUID this tool auto-resolves it to the database's incoming group. Safety: read_only Prefer this when: you need structured search results and automatic database-root scoping; prefer raw devonthink-search only when you need the dictionary command exactly. Degradation: When database_uuid points at a database, the tool degrades intentionally by resolving it to the incoming group instead of throwing the raw DEVONthink Invalid argument (-50) failure. Example: {\"query\":\"tag:inbox\",\"limit\":25,\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Search DEVONthink records and return structured record objects rather than raw AppleScript results. Use when: you need query-driven lookup with safer scoping than the raw dictionary search command. Identifiers: Accepts a query string plus an optional group UUID or database UUID in database_uuid. Prefer a group UUID for exact folder scope; when you pass a database UUID this tool auto-resolves it to the database's incoming group. Safety: read_only Prefer this when: you need structured search results and automatic database-root scoping; prefer raw devonthink-search only when you need the dictionary command exactly. Degradation: When database_uuid points at a database, the tool degrades intentionally by resolving it to the incoming group instead of throwing the raw DEVONthink Invalid argument (-50) failure. Example: {\"query\":\"tag:inbox\",\"limit\":25,\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -6813,7 +6896,7 @@
     ],
     "prefer_when": "you want structured results and safe scoping behavior.",
     "degradation_contract": "Database UUID scope auto-resolves to the incoming group to avoid raw search errors.",
-    "example": "{\"query\":\"tag:inbox\",\"limit\":25,\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"query\":\"tag:inbox\",\"limit\":25,\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "specialized",
@@ -7198,7 +7281,7 @@
   },
   {
     "name": "devonthink-summarize-annotations",
-    "description": "Summarize DEVONthink PDF/internal annotations from records into a markdown summary record. Use when: you need DEVONthink's built-in summary of PDF-internal highlights, comments, or markup. This is separate from attached annotation notes/annotation-note records. Identifiers: Accepts one or more source record UUIDs and a destination group UUID for the generated summary record. Safety: writes_content Prefer this when: you want internal PDF annotation markup summarized; use devonthink-read-annotation-note for the attached annotation note stored via the record annotation property. Degradation: Returns data=null with a missing_value warning when DEVONthink returns missing value, commonly because records have attached annotation notes only and no internal PDF markup. Example: {\"record_uuids\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"destination_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "description": "Summarize DEVONthink PDF/internal annotations from records into a markdown summary record. Use when: you need DEVONthink's built-in summary of PDF-internal highlights, comments, or markup. This is separate from attached annotation notes/annotation-note records. Identifiers: Accepts one or more source record UUIDs and a destination group UUID for the generated summary record. Safety: writes_content Prefer this when: you want internal PDF annotation markup summarized; use devonthink-read-annotation-note for the attached annotation note stored via the record annotation property. Degradation: Returns data=null with a missing_value warning when DEVONthink returns missing value, commonly because records have attached annotation notes only and no internal PDF markup. Example: {\"record_uuids\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"destination_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -7229,7 +7312,7 @@
     ],
     "prefer_when": "you need PDF/internal annotation summaries, not attached annotation-note content.",
     "degradation_contract": "Missing value is expected for records with attached annotation notes only.",
-    "example": "{\"record_uuids\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"destination_group_uuid\":\"180AA7E9-CBB5-4DEF-8F06-7DEDD2809E5B\"}",
+    "example": "{\"record_uuids\":[\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"],\"destination_group_uuid\":\"00000000-0000-4000-8000-000000000002\"}",
     "tags": [
       "devonthink",
       "specialized",
@@ -7413,7 +7496,7 @@
   },
   {
     "name": "devonthink-sync-database",
-    "description": "Trigger DEVONthink synchronization for a database by UUID. Use when: a database has configured sync locations and you need to start sync from automation. Identifiers: Accepts a database UUID. Safety: writes_content Prefer this when: you need database sync rather than filesystem record synchronization. Example: {\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Trigger DEVONthink synchronization for a database by UUID. Use when: a database has configured sync locations and you need to start sync from automation. Identifiers: Accepts a database UUID. Safety: writes_content Prefer this when: you need database sync rather than filesystem record synchronization. Example: {\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -7443,7 +7526,7 @@
     ],
     "prefer_when": "you need database sync rather than filesystem record synchronization.",
     "degradation_contract": null,
-    "example": "{\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "database",
@@ -8053,7 +8136,7 @@
   },
   {
     "name": "devonthink-verify",
-    "description": "Run the native DEVONthink dictionary command 'verify' from DEVONthink Suite. Use when: Verify a database. Identifiers: Accepts database UUIDs. Prefer database_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\": {\"database\": \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}}",
+    "description": "Run the native DEVONthink dictionary command 'verify' from DEVONthink Suite. Use when: Verify a database. Identifiers: Accepts database UUIDs. Prefer database_uuid when you already have a stable locator. Safety: writes_content Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {\"parameters\": {\"database\": \"00000000-0000-4000-8000-000000000001\"}}",
     "group": "devonthink.native",
     "tier": "internal",
     "status": "active",
@@ -8081,7 +8164,7 @@
     ],
     "prefer_when": "you need the exact DEVONthink dictionary command instead of a higher-level wrapper.",
     "degradation_contract": null,
-    "example": "{\"parameters\": {\"database\": \"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}}",
+    "example": "{\"parameters\": {\"database\": \"00000000-0000-4000-8000-000000000001\"}}",
     "tags": [
       "devonthink",
       "dictionary",
@@ -8095,7 +8178,7 @@
   },
   {
     "name": "devonthink-verify-database",
-    "description": "Run DEVONthink's built-in verification for a database. Use when: you need a read-only health check for an open database. Identifiers: Accepts a database UUID. Safety: read_only Prefer this when: you want DEVONthink's database verification result before maintenance or backup work. Example: {\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "description": "Run DEVONthink's built-in verification for a database. Use when: you need a read-only health check for an open database. Identifiers: Accepts a database UUID. Safety: read_only Prefer this when: you want DEVONthink's database verification result before maintenance or backup work. Example: {\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "group": "devonthink.native",
     "tier": "canonical",
     "status": "active",
@@ -8125,7 +8208,7 @@
     ],
     "prefer_when": "you want DEVONthink's database verification result before maintenance or backup work.",
     "degradation_contract": null,
-    "example": "{\"database_uuid\":\"0444C204-D8AD-4CC0-8A9A-9F6817C12896\"}",
+    "example": "{\"database_uuid\":\"00000000-0000-4000-8000-000000000001\"}",
     "tags": [
       "devonthink",
       "database",
@@ -8136,7 +8219,7 @@
   },
   {
     "name": "devonthink-verify-operation",
-    "description": "Verify a planned DEVONthink operation against current state. Use when: you need to re-check whether a planned/applied reminder operation's expected post-state holds. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder operations. Safety: read_only Prefer this when: you want post-apply evidence without applying another change. Example: {\"plan_id\":\"plan_...\"}",
+    "description": "Verify a planned DEVONthink operation against current state. Use when: you need to re-check whether a planned/applied reminder operation's expected post-state holds. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder and record operations. Safety: read_only Prefer this when: you want post-apply evidence without applying another change. Example: {\"plan_id\":\"plan_...\"}",
     "group": "devonthink.native",
     "tier": "advanced",
     "status": "active",
@@ -8151,7 +8234,7 @@
       "record_uuid"
     ],
     "preferred_identifier": "record_uuid",
-    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder operations.",
+    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder and record operations.",
     "safety_class": "read_only",
     "supports_dry_run": false,
     "supports_plan": true,

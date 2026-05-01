@@ -35,11 +35,11 @@ def test_verify_database_returns_result(monkeypatch) -> None:
 
     monkeypatch.setattr(db_tools, "run_applescript", fake_run)
 
-    result = db_tools.devonthink_verify_database("0444C204-D8AD-4CC0-8A9A-9F6817C12896")
+    result = db_tools.devonthink_verify_database("00000000-0000-4000-8000-000000000001")
 
     assert result["ok"] is True
     assert result["result"] == "0"
-    assert calls[0][1] == ["0444C204-D8AD-4CC0-8A9A-9F6817C12896"]
+    assert calls[0][1] == ["00000000-0000-4000-8000-000000000001"]
 
 
 def test_database_catalog_entries_have_required_markers() -> None:
