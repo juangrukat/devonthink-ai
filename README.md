@@ -31,7 +31,7 @@ This repo exposes DEVONthink automation as MCP tools (AppleScript-backed), with 
 A representative workflow: ask an MCP client to identify DEVONthink tags and create a hub note that groups related tags into a hierarchy.
 
 ![Example 1](image/example1.png)
-
+![exmple 2](/image/1.png)
 Core workflows verified in this repo:
 
 - Search and lookup
