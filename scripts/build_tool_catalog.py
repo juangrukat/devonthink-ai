@@ -20,6 +20,7 @@ from app.tools.devonthink_richtext_tools import richtext_tool_catalog_entries
 from app.tools.devonthink_script_tools import script_tool_catalog_entries
 from app.tools.devonthink_smart_tools import smart_tool_catalog_entries
 from app.tools.devonthink_tools import specialized_tool_catalog_entries
+from app.tools.lifecycle import lifecycle_tool_catalog_entries
 
 
 TOOLS_PATH = ROOT / "catalog-runtime" / "registry" / "tools.json"
@@ -33,6 +34,7 @@ def build_tools() -> list[dict]:
     entries.extend(database_tool_catalog_entries())
     entries.extend(smart_tool_catalog_entries())
     entries.extend(reminder_tool_catalog_entries())
+    entries.extend(lifecycle_tool_catalog_entries())
     entries.extend(script_tool_catalog_entries())
     entries.extend(richtext_tool_catalog_entries())
     entries.extend(link_tool_catalog_entries())

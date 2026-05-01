@@ -373,6 +373,16 @@
     "note": "DEVONthink overlap family grouped by command verb for devonthink-italicize."
   },
   {
+    "family": "devonthink-lifecycle",
+    "canonical_tool": "devonthink-apply-operation",
+    "members": [
+      "devonthink-apply-operation",
+      "devonthink-plan-operation",
+      "devonthink-verify-operation"
+    ],
+    "note": "Overlap family for devonthink-lifecycle."
+  },
+  {
     "family": "devonthink-link-intelligence",
     "canonical_tool": "devonthink-link-resolve",
     "members": [

@@ -216,6 +216,47 @@
     ]
   },
   {
+    "name": "devonthink-apply-operation",
+    "description": "Apply a previously planned DEVONthink operation after confirmation and stale-plan checks. Use when: you have a plan_id and confirmation token from devonthink-plan-operation. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder operations. Safety: writes_metadata Prefer this when: you are ready to apply a staged reminder operation. Example: {\"plan_id\":\"plan_...\",\"confirmation_token\":\"...\"}",
+    "group": "devonthink.native",
+    "tier": "advanced",
+    "status": "active",
+    "canonical_tool": "devonthink-apply-operation",
+    "overlap_family": "devonthink-lifecycle",
+    "source_path": "app/tools/lifecycle.py",
+    "catalog_path": "catalog-runtime/tools/devonthink.native/advanced/devonthink-apply-operation.json",
+    "executable": "python",
+    "priority": 70,
+    "default_exposed": false,
+    "accepted_identifiers": [
+      "record_uuid"
+    ],
+    "preferred_identifier": "record_uuid",
+    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder operations.",
+    "safety_class": "writes_metadata",
+    "supports_dry_run": false,
+    "supports_plan": true,
+    "supports_verify": true,
+    "requires_confirmation": true,
+    "mutation_scope": "single_record",
+    "signal_tier": "authoritative",
+    "profile_availability": [
+      "minimal",
+      "canonical",
+      "full"
+    ],
+    "prefer_when": "you are ready to apply a staged reminder operation.",
+    "degradation_contract": null,
+    "example": "{\"plan_id\":\"plan_...\",\"confirmation_token\":\"...\"}",
+    "tags": [
+      "devonthink",
+      "lifecycle",
+      "plan-apply-verify"
+    ],
+    "input_schema": {},
+    "invocation_pitfalls": []
+  },
+  {
     "name": "devonthink-apply-smart-rule",
     "description": "Apply a named DEVONthink smart rule to one record. Use when: you want DEVONthink to run an existing named smart rule against a specific record, not execute arbitrary script code. Identifiers: Accepts a smart rule name and record UUID. Safety: writes_content Prefer this when: the named rule logic already exists in DEVONthink; use devonthink-run-script only for filesystem scripts and arbitrary AppleScript/JXA execution. Example: {\"rule_name\":\"Auto-Tag Invoices\",\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\"}",
     "group": "devonthink.native",
@@ -5931,6 +5972,47 @@
     ]
   },
   {
+    "name": "devonthink-plan-operation",
+    "description": "Plan a supported DEVONthink operation and return before/after state plus a confirmation token. Use when: you need to stage a Reminder.Update or Reminder.Delete operation before applying it. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder operations. Safety: writes_metadata Prefer this when: you want stale-target protection before changing a reminder. Example: {\"operation\":{\"kind\":\"Reminder.Update\",\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"reminder_id\":\"1\",\"due_date\":\"2026-05-01T09:00:00\",\"alarm\":\"notification\"}}",
+    "group": "devonthink.native",
+    "tier": "advanced",
+    "status": "active",
+    "canonical_tool": "devonthink-plan-operation",
+    "overlap_family": "devonthink-lifecycle",
+    "source_path": "app/tools/lifecycle.py",
+    "catalog_path": "catalog-runtime/tools/devonthink.native/advanced/devonthink-plan-operation.json",
+    "executable": "python",
+    "priority": 70,
+    "default_exposed": false,
+    "accepted_identifiers": [
+      "record_uuid"
+    ],
+    "preferred_identifier": "record_uuid",
+    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder operations.",
+    "safety_class": "writes_metadata",
+    "supports_dry_run": false,
+    "supports_plan": true,
+    "supports_verify": true,
+    "requires_confirmation": true,
+    "mutation_scope": "single_record",
+    "signal_tier": "authoritative",
+    "profile_availability": [
+      "minimal",
+      "canonical",
+      "full"
+    ],
+    "prefer_when": "you want stale-target protection before changing a reminder.",
+    "degradation_contract": null,
+    "example": "{\"operation\":{\"kind\":\"Reminder.Update\",\"record_uuid\":\"5038E0B0-2134-4CDA-B443-6558CE283BCC\",\"reminder_id\":\"1\",\"due_date\":\"2026-05-01T09:00:00\",\"alarm\":\"notification\"}}",
+    "tags": [
+      "devonthink",
+      "lifecycle",
+      "plan-apply-verify"
+    ],
+    "input_schema": {},
+    "invocation_pitfalls": []
+  },
+  {
     "name": "devonthink-quit",
     "description": "Run the native DEVONthink dictionary command 'quit' from Standard Suite. Use when: Quit the application. Identifiers: Use exact dictionary parameter names. This command mainly takes plain strings, numbers, booleans, or lists rather than DEVONthink UUID references. Safety: maintenance_write Prefer this when: you need the exact DEVONthink dictionary command instead of a higher-level wrapper. Example: {}",
     "group": "devonthink.native",
@@ -8048,6 +8130,47 @@
       "devonthink",
       "database",
       "lifecycle"
+    ],
+    "input_schema": {},
+    "invocation_pitfalls": []
+  },
+  {
+    "name": "devonthink-verify-operation",
+    "description": "Verify a planned DEVONthink operation against current state. Use when: you need to re-check whether a planned/applied reminder operation's expected post-state holds. Identifiers: Accepts lifecycle plan identifiers and operation objects for supported reminder operations. Safety: read_only Prefer this when: you want post-apply evidence without applying another change. Example: {\"plan_id\":\"plan_...\"}",
+    "group": "devonthink.native",
+    "tier": "advanced",
+    "status": "active",
+    "canonical_tool": "devonthink-verify-operation",
+    "overlap_family": "devonthink-lifecycle",
+    "source_path": "app/tools/lifecycle.py",
+    "catalog_path": "catalog-runtime/tools/devonthink.native/advanced/devonthink-verify-operation.json",
+    "executable": "python",
+    "priority": 70,
+    "default_exposed": false,
+    "accepted_identifiers": [
+      "record_uuid"
+    ],
+    "preferred_identifier": "record_uuid",
+    "identifier_guidance": "Accepts lifecycle plan identifiers and operation objects for supported reminder operations.",
+    "safety_class": "read_only",
+    "supports_dry_run": false,
+    "supports_plan": true,
+    "supports_verify": true,
+    "requires_confirmation": false,
+    "mutation_scope": "none",
+    "signal_tier": "authoritative",
+    "profile_availability": [
+      "minimal",
+      "canonical",
+      "full"
+    ],
+    "prefer_when": "you want post-apply evidence without applying another change.",
+    "degradation_contract": null,
+    "example": "{\"plan_id\":\"plan_...\"}",
+    "tags": [
+      "devonthink",
+      "lifecycle",
+      "plan-apply-verify"
     ],
     "input_schema": {},
     "invocation_pitfalls": []

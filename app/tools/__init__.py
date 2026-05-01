@@ -11,6 +11,7 @@ from app.tools.devonthink_reminder_tools import register_devonthink_reminder_too
 from app.tools.devonthink_richtext_tools import register_devonthink_richtext_tools
 from app.tools.devonthink_script_tools import register_devonthink_script_tools
 from app.tools.devonthink_smart_tools import register_devonthink_smart_tools
+from app.tools.lifecycle import register_lifecycle_tools
 
 
 def register_tools(mcp):
@@ -30,6 +31,7 @@ def register_tools(mcp):
     register_devonthink_database_tools(mcp)
     register_devonthink_smart_tools(mcp)
     register_devonthink_reminder_tools(mcp)
+    register_lifecycle_tools(mcp)
     register_devonthink_script_tools(mcp)
     register_devonthink_richtext_tools(mcp)
     if profile == "minimal":
