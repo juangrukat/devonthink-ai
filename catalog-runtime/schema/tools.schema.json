@@ -22,6 +22,12 @@
       "preferred_identifier",
       "identifier_guidance",
       "safety_class",
+      "supports_dry_run",
+      "supports_plan",
+      "supports_verify",
+      "requires_confirmation",
+      "mutation_scope",
+      "signal_tier",
       "profile_availability",
       "prefer_when",
       "example"
@@ -42,7 +48,34 @@
       "accepted_identifiers": { "type": "array", "items": { "type": "string" } },
       "preferred_identifier": { "type": ["string", "null"] },
       "identifier_guidance": { "type": "string", "minLength": 1 },
-      "safety_class": { "type": "string", "minLength": 1 },
+      "safety_class": {
+        "type": "string",
+        "enum": [
+          "read_only",
+          "analysis_only",
+          "writes_metadata",
+          "writes_content",
+          "moves_records",
+          "creates_records",
+          "communication_write",
+          "bulk_write",
+          "maintenance_write",
+          "destructive",
+          "arbitrary_applescript"
+        ]
+      },
+      "supports_dry_run": { "type": "boolean" },
+      "supports_plan": { "type": "boolean" },
+      "supports_verify": { "type": "boolean" },
+      "requires_confirmation": { "type": "boolean" },
+      "mutation_scope": {
+        "type": "string",
+        "enum": ["none", "single_record", "batch", "database", "system"]
+      },
+      "signal_tier": {
+        "type": "string",
+        "enum": ["authoritative", "structural", "inferred"]
+      },
       "profile_availability": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
       "prefer_when": { "type": "string", "minLength": 1 },
       "degradation_contract": { "type": ["string", "null"] },

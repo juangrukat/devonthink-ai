@@ -476,12 +476,22 @@ def _profile_availability(spec: CommandSpec) -> list[str]:
 def _safety_class(spec: CommandSpec) -> str:
     name = spec.command_name.lower().strip()
     if name.startswith(UI_PREFIXES):
-        return "ui_coupled"
+        return "maintenance_write"
+    if name.startswith(("do javascript",)):
+        return "arbitrary_applescript"
+    if name.startswith(("delete", "restore")):
+        return "destructive"
+    if name.startswith("move"):
+        return "moves_records"
     if name.startswith(DESTRUCTIVE_PREFIXES) or spec.tier == "internal":
-        return "destructive" if name.startswith(("delete", "restore")) else "writes_data"
+        return "writes_content"
     if name.startswith(READ_ONLY_PREFIXES) or spec.tier == "canonical":
         return "read_only"
-    return "writes_data"
+    if name.startswith(("add custom meta data", "export tags", "set label", "set rating")):
+        return "writes_metadata"
+    if name.startswith(("create", "duplicate", "import", "index", "replicate", "download")):
+        return "creates_records"
+    return "writes_content"
 
 
 def _collect_identifier_hints(spec: CommandSpec) -> tuple[list[str], str | None]:

@@ -611,6 +611,7 @@
       "devonthink-create-rtfd",
       "devonthink-read-rtf",
       "devonthink-read-rtfd",
+      "devonthink-update-record-content",
       "devonthink-update-rtf",
       "devonthink-update-rtfd"
     ],

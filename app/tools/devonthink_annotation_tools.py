@@ -242,7 +242,7 @@ def annotation_tool_catalog_entries() -> list[dict[str, Any]]:
             name="devonthink-create-annotation-note",
             summary="Create a DEVONthink annotation note record and attach it to a target record or PDF.",
             use_when="you want the record's attached annotation note, stored in the database Annotations group, not a PDF-internal highlight or markup annotation. Valid targets include PDFs, normal records, groups, smart groups, and annotation-note records.",
-            safety_class="writes_data",
+            safety_class="writes_content",
             prefer_when="the request says attach an annotation note, annotation file, or sample text annotation to a record/PDF/group; use PDF-specific tools or DEVONthink's summarize-annotations command for internal PDF highlights and markup.",
             example='{"record_uuid":"94E29B42-FBE9-482A-9500-8945DF69568D","name":"MCP PDF Annotation File","content":"Sample annotation note","note_type":"txt","replace_existing":false}',
             tier="canonical",
